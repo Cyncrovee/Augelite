@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Cyncrovee-Website Licenses</title>
+</head>
+
+<body>
+  <main>
+    <div>
+      <h1>License Information for Cyncrovee-Website</h1>
+    </div>
+
+    <div>
+      <h1>License Overview:</h1>
+      <ul>
+        {{#each overview}}
+        <li><a href="#{{id}}">{{name}}</a> ({{count}})</li>
+        {{/each}}
+      </ul>
+    </div>
+
+    <div>
+      <h1>License Text</h1>
+      <ul>
+        {{#each licenses}}
+        <li>
+          {{#if first_of_kind}}
+          <h3 id="{{id}}">{{name}}</h3>
+          {{/if}}
+          <h4 id="{{id}}-{{@index}}">{{name}}</h4>
+          <h5>Used by:</h5>
+          <ul>
+            {{#each used_by}}
+            <li><a
+                href="{{#if crate.repository}}{{crate.repository}}{{else}}https://crates.io/{{crate.name}}{{/if}}">{{crate.name}}
+                {{crate.version}}</a></li>
+            {{/each}}
+          </ul>
+          <pre>{{text}}</pre>
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+  </main>
+</body>
+
+</html>
