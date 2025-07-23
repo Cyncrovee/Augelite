@@ -1,7 +1,8 @@
 use std::{
     env::{self},
     fs::{self},
-    io::Write, usize,
+    io::Write,
+    usize,
 };
 
 use color_eyre::Result;
@@ -147,17 +148,26 @@ impl AppState {
                                 self.cursor_row += 1;
                                 self.current_char += 1;
                             }
-                        } else {
                         }
                     }
                     /*
                     KeyCode::Up => {
                         self.cursor_column -= 1;
                     }
-                    KeyCode::Down => {
-                        self.cursor_column += 1;
-                    }
                     */
+                    KeyCode::Down => {
+                        let text = self.editor_content.clone().finish().to_string();
+                        if self.cursor_row == text.lines().nth(self.cursor_column).unwrap().len()
+                        {
+                            if let Some(line) = text.lines().nth(self.cursor_column + 1) {
+                                if line.len() <= self.cursor_row {
+                                    self.cursor_column += 1;
+                                    self.cursor_row = line.len();
+                                    self.current_char += self.cursor_row + 1;
+                                }
+                            }
+                        }
+                    }
                     KeyCode::Home => {
                         self.cursor_row = 0;
                         self.cursor_column = 0;
