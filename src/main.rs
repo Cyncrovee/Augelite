@@ -1,221 +1,139 @@
-use std::{
-    env::{self},
-    fs::{self},
-    io::Write,
-    usize,
-};
+use std::io::stdout;
 
-use color_eyre::Result;
-use crossterm::event::{self, Event, KeyCode, KeyEventKind};
-use ratatui::{
-    DefaultTerminal, Frame,
-    crossterm::{self, style::Color},
-    layout::{Constraint, Layout, Position},
-    style::Stylize,
-    text::Line,
-    widgets::Paragraph,
+use crossterm::{
+    ExecutableCommand, cursor,
+    event::{self, Event, KeyCode, KeyEventKind},
+    execute,
 };
-use ropey::RopeBuilder;
+use ropey::{Rope, RopeBuilder};
 
-#[derive(Default)]
-struct AppState {
-    running: bool,
-    file: (String, bool),
+struct AugeliteState {
     editor_content: RopeBuilder,
-    current_char: usize,
-    cursor_row: usize,
-    cursor_column: usize,
-    max_col: usize,
+    file_path: String,
 }
 
-fn main() -> Result<()> {
-    let arg = env::args().nth(1);
-    let mut _is_file = false;
-    match arg {
-        Some(_) => _is_file = true,
-        None => _is_file = false,
-    }
-    let mut editor_content = RopeBuilder::new();
+fn main() -> std::io::Result<()> {
+    stdout()
+        .execute(crossterm::terminal::EnterAlternateScreen)
+        .unwrap();
+    /*
+    stdout()
+        .execute(crossterm::terminal::DisableLineWrap)
+        .unwrap();
+    */
+    crossterm::terminal::enable_raw_mode().unwrap();
+    stdout().execute(crossterm::cursor::Show).unwrap();
+    AugeliteState::run(&mut AugeliteState {
+        editor_content: RopeBuilder::new(),
+        file_path: "".to_string(),
+    });
 
-    color_eyre::install()?;
-    let terminal = ratatui::init();
-    let result = AppState::run(
-        &mut AppState {
-            running: true,
-            file: (
-                if _is_file {
-                    arg.clone().unwrap()
-                } else {
-                    "".to_string()
-                },
-                _is_file,
-            ),
-            editor_content: if _is_file {
-                let file_content = fs::read_to_string(arg.unwrap());
-                editor_content.append(file_content.unwrap().as_str());
-                editor_content
-            } else {
-                editor_content
-            },
-            current_char: 0,
-            cursor_row: 0,
-            cursor_column: 0,
-            max_col: 0,
-        },
-        terminal,
-    );
-    ratatui::restore();
-
-    result
+    Ok(())
 }
 
-impl AppState {
-    pub fn run(&mut self, mut terminal: DefaultTerminal) -> Result<()> {
-        while self.running {
-            terminal.draw(|frame| self.view(frame))?;
-            if let false = AppState::key_events(self) {
-                break;
-            }
-        }
-        Ok(())
-    }
-
-    pub fn key_events(&mut self) -> bool {
-        if let Event::Key(key) = event::read().unwrap() {
-            if let KeyEventKind::Press = key.kind {
-                match key.code {
-                    KeyCode::Char(c) => {
-                        self.editor_content.append(c.to_string().as_str());
-                        self.cursor_row += 1;
-                        self.current_char += 1;
-                        self.max_col += 1;
-                    }
-                    KeyCode::Enter => {
-                        self.editor_content.append("\n");
-                        self.cursor_row = 0;
-                        self.cursor_column += 1;
-                        self.current_char += 1;
-                        self.max_col = 0;
-                    }
-                    KeyCode::Backspace => {
-                        if self.current_char != 0 {
-                            let mut text = self.editor_content.clone().finish().to_string();
-                            text.remove(self.current_char - 1);
-                            self.editor_content = RopeBuilder::new();
-                            self.editor_content.append(text.as_str());
-                            if self.cursor_row == 0 && self.cursor_column != 0 {
-                                self.cursor_column -= 1;
-                                self.cursor_row += 1;
-                                self.current_char -= 1;
-                                match text.lines().nth(self.cursor_column) {
-                                    Some(line) => self.cursor_row = line.chars().count(),
-                                    None => self.cursor_row = 0,
-                                }
-                            } else {
-                                self.cursor_row -= 1;
-                                self.current_char -= 1;
-                            }
+impl AugeliteState {
+    fn run(&mut self) {
+        to_col(0);
+        to_row(0);
+        loop {
+            if let Event::Key(key) = event::read().unwrap() {
+                if let KeyEventKind::Press = key.kind {
+                    match key.code {
+                        KeyCode::Char(c) => {
+                            move_right();
+                            self.editor_content.append(c.to_string().as_str());
                         }
-                    }
-                    KeyCode::Left => {
-                        if self.current_char != 0 && self.cursor_row != 0 {
-                            self.cursor_row -= 1;
-                            self.current_char -= 1;
-                        } else if self.current_char != 0 && self.cursor_row == 0 {
-                            self.cursor_column -= 1;
-                            self.cursor_row += 1;
-                            self.current_char -= 1;
-                            let text = self.editor_content.clone().finish().to_string();
-                            match text.lines().nth(self.cursor_column) {
-                                Some(line) => self.cursor_row = line.chars().count(),
-                                None => self.cursor_row = 0,
-                            }
+                        KeyCode::Left => {
+                            move_left();
                         }
-                    }
-                    KeyCode::Right => {
-                        let text = self.editor_content.clone().finish().to_string();
-                        if let Some(line) = text.lines().nth(self.cursor_column) {
-                            if line.len() == self.cursor_row {
-                                match text.lines().nth(self.cursor_column + 1) {
-                                    Some(_) => {
-                                        self.current_char += 1;
-                                        self.cursor_column += 1;
-                                        self.cursor_row = 0;
-                                    }
-                                    None => {}
-                                }
-                            } else {
-                                self.cursor_row += 1;
-                                self.current_char += 1;
-                            }
+                        KeyCode::Right => {
+                            move_right();
                         }
-                    }
-                    /*
-                    KeyCode::Up => {
-                        self.cursor_column -= 1;
-                    }
-                    */
-                    KeyCode::Down => {
-                        let text = self.editor_content.clone().finish().to_string();
-                        if self.cursor_row == text.lines().nth(self.cursor_column).unwrap().len() {
-                            if let Some(line) = text.lines().nth(self.cursor_column + 1) {
-                                if line.len() <= self.cursor_row {
-                                    self.cursor_column += 1;
-                                    self.cursor_row = line.len();
-                                    self.current_char += self.cursor_row + 1;
-                                } else if line.len() > self.cursor_row {
-                                    self.cursor_column += 1;
-                                    self.current_char += self.cursor_row + 1;
-                                }
-                            }
+                        KeyCode::Up => {
+                            move_up();
                         }
-                    }
-                    KeyCode::Home => {
-                        self.cursor_row = 0;
-                        self.cursor_column = 0;
-                    }
-                    KeyCode::Insert => match self.file.1 {
-                        true => {
-                            let mut f = std::fs::File::create(&self.file.0).unwrap();
-                            write!(f, "{}", self.editor_content.clone().finish().to_string())
+                        KeyCode::Down => {
+                            move_down();
+                        }
+                        KeyCode::Enter => {
+                            self.editor_content.append("\n");
+                            new_line();
+                        }
+                        KeyCode::Esc => {
+                            stdout()
+                                .execute(crossterm::terminal::LeaveAlternateScreen)
                                 .unwrap();
+                            break;
                         }
-                        false => {}
-                    },
-                    KeyCode::Esc => {
-                        return false;
+                        _ => {}
                     }
-                    _ => {}
+                    print_content(self.editor_content.clone().finish(), false).unwrap();
                 }
             }
         }
-        return true;
     }
+}
 
-    pub fn view(&self, frame: &mut Frame) {
-        let layout = Layout::default()
-            .direction(ratatui::layout::Direction::Vertical)
-            .constraints(vec![Constraint::Percentage(95), Constraint::Percentage(5)])
-            .split(frame.area());
-
-        let mut status_bar_content = " ".to_owned();
-        status_bar_content.push_str(self.current_char.to_string().as_str());
-        status_bar_content.push_str(" | ");
-        status_bar_content.push_str(self.cursor_row.to_string().as_str());
-        status_bar_content.push(':');
-        status_bar_content.push_str(self.cursor_column.to_string().as_str());
-        let status_bar = Line::raw(status_bar_content)
-            .bg(Color::White)
-            .fg(Color::Black);
-
-        frame.render_widget(
-            Paragraph::new(self.editor_content.clone().finish().to_string()),
-            layout[0],
-        );
-        frame.render_widget(status_bar, layout[1]);
-        frame.set_cursor_position(Position {
-            x: self.cursor_row as u16,
-            y: self.cursor_column as u16,
-        });
+fn print_content(content: Rope, will_clear: bool) -> std::io::Result<()> {
+    if will_clear {
+        clear_terminal();
     }
+    execute!(stdout(), crossterm::terminal::BeginSynchronizedUpdate)?;
+    execute!(stdout(), cursor::SavePosition)?;
+    execute!(stdout(), cursor::Hide)?;
+    to_col(0);
+    to_row(0);
+    for line in content.lines() {
+        print!("{}", line);
+        to_col(0);
+    }
+    execute!(stdout(), cursor::RestorePosition)?;
+    execute!(stdout(), crossterm::terminal::EndSynchronizedUpdate)?;
+    execute!(stdout(), cursor::Show)?;
+
+    Ok(())
+}
+
+fn to_col(col: u16) {
+    execute!(stdout(), crossterm::cursor::MoveToColumn(col)).unwrap();
+}
+
+fn to_row(row: u16) {
+    execute!(stdout(), crossterm::cursor::MoveToRow(row)).unwrap();
+}
+
+fn move_left() {
+    execute!(stdout(), crossterm::cursor::MoveLeft(1)).unwrap();
+}
+
+fn move_right() {
+    execute!(stdout(), crossterm::cursor::MoveRight(1)).unwrap();
+}
+
+fn move_up() {
+    stdout().execute(crossterm::cursor::MoveUp(1)).unwrap();
+}
+
+fn move_down() {
+    execute!(stdout(), crossterm::cursor::MoveDown(1)).unwrap();
+}
+
+fn new_line() {
+    stdout()
+        .execute(crossterm::cursor::MoveToNextLine(1))
+        .unwrap();
+}
+
+fn up_line() {
+    stdout()
+        .execute(crossterm::cursor::MoveToPreviousLine(1))
+        .unwrap();
+}
+
+fn clear_terminal() {
+    execute!(
+        stdout(),
+        crossterm::terminal::Clear(crossterm::terminal::ClearType::All)
+    )
+    .unwrap();
 }
