@@ -43,14 +43,14 @@ fn main() -> Result<()> {
         &mut AppState {
             running: true,
             file: (
-                if _is_file == true {
+                if _is_file {
                     arg.clone().unwrap()
                 } else {
                     "".to_string()
                 },
                 _is_file,
             ),
-            editor_content: if _is_file == true {
+            editor_content: if _is_file {
                 let file_content = fs::read_to_string(arg.unwrap());
                 editor_content.append(file_content.unwrap().as_str());
                 editor_content
@@ -71,7 +71,7 @@ fn main() -> Result<()> {
 
 impl AppState {
     pub fn run(&mut self, mut terminal: DefaultTerminal) -> Result<()> {
-        while self.running == true {
+        while self.running {
             terminal.draw(|frame| self.view(frame))?;
             if let false = AppState::key_events(self) {
                 break;
