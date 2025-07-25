@@ -9,7 +9,7 @@ use ropey::{Rope, RopeBuilder};
 
 struct AugeliteState {
     editor_content: RopeBuilder,
-    file_path: String,
+    // file_path: String,
 }
 
 fn main() -> std::io::Result<()> {
@@ -23,7 +23,7 @@ fn main() -> std::io::Result<()> {
     execute!(stdout(), crossterm::cursor::Show).unwrap();
     AugeliteState::run(&mut AugeliteState {
         editor_content: RopeBuilder::new(),
-        file_path: "".to_string(),
+        // file_path: "".to_string(),
     });
 
     Ok(())
@@ -97,6 +97,14 @@ impl AugeliteState {
     }
 }
 
+fn clear_terminal() {
+    execute!(
+        stdout(),
+        crossterm::terminal::Clear(crossterm::terminal::ClearType::All)
+    )
+    .unwrap();
+}
+
 fn print_content(content: Rope, will_clear: bool) -> std::io::Result<()> {
     if will_clear {
         clear_terminal();
@@ -147,12 +155,4 @@ fn new_line() {
 
 fn up_line() {
     execute!(stdout(), crossterm::cursor::MoveToPreviousLine(1)).unwrap();
-}
-
-fn clear_terminal() {
-    execute!(
-        stdout(),
-        crossterm::terminal::Clear(crossterm::terminal::ClearType::All)
-    )
-    .unwrap();
 }
