@@ -46,7 +46,23 @@ impl AugeliteState {
                             move_left();
                         }
                         KeyCode::Right => {
-                            move_right();
+                            let cursor_pos = cursor::position().unwrap();
+                            let text = self.editor_content.clone().finish();
+                            if text
+                                .lines()
+                                .nth(cursor_pos.1 as usize + 1)
+                                .is_some()
+                            {
+                                if text
+                                    .line(cursor_pos.1 as usize)
+                                    .char(cursor_pos.0 as usize)
+                                    == '\n'
+                                {
+                                    new_line();
+                                } else {
+                                    move_right();
+                                }
+                            }
                         }
                         KeyCode::Up => {
                             move_up();
