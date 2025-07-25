@@ -40,6 +40,7 @@ impl AugeliteState {
                         KeyCode::Char(c) => {
                             move_right();
                             self.editor_content.append(c.to_string().as_str());
+                            print_content(self.editor_content.clone().finish(), false).unwrap();
                         }
                         KeyCode::Left => {
                             move_left();
@@ -57,6 +58,31 @@ impl AugeliteState {
                             self.editor_content.append("\n");
                             new_line();
                         }
+                        KeyCode::Backspace => {
+                            let mut text = self.editor_content.clone().finish().to_string();
+                            text.pop();
+                            self.editor_content = RopeBuilder::new();
+                            self.editor_content.append(text.as_str());
+                            if cursor::position().unwrap().0 != 0 {
+                                move_left();
+                            } else {
+                                up_line();
+                                execute!(
+                                    stdout(),
+                                    cursor::MoveRight(
+                                        self.editor_content
+                                            .clone()
+                                            .finish()
+                                            .line(crossterm::cursor::position().unwrap().1.into())
+                                            .len_chars()
+                                            .try_into()
+                                            .unwrap()
+                                    )
+                                )
+                                .unwrap();
+                            }
+                            print_content(self.editor_content.clone().finish(), true).unwrap();
+                        }
                         KeyCode::Esc => {
                             stdout()
                                 .execute(crossterm::terminal::LeaveAlternateScreen)
@@ -65,7 +91,6 @@ impl AugeliteState {
                         }
                         _ => {}
                     }
-                    print_content(self.editor_content.clone().finish(), false).unwrap();
                 }
             }
         }
@@ -82,7 +107,7 @@ fn print_content(content: Rope, will_clear: bool) -> std::io::Result<()> {
     to_col(0);
     to_row(0);
     for line in content.lines() {
-        print!("{}", line);
+        print!("{line}");
         to_col(0);
     }
     execute!(stdout(), cursor::RestorePosition)?;
