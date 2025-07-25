@@ -13,16 +13,14 @@ struct AugeliteState {
 }
 
 fn main() -> std::io::Result<()> {
-    stdout()
-        .execute(crossterm::terminal::EnterAlternateScreen)
-        .unwrap();
+    execute!(stdout(), crossterm::terminal::EnterAlternateScreen).unwrap();
     /*
     stdout()
         .execute(crossterm::terminal::DisableLineWrap)
         .unwrap();
     */
     crossterm::terminal::enable_raw_mode().unwrap();
-    stdout().execute(crossterm::cursor::Show).unwrap();
+    execute!(stdout(), crossterm::cursor::Show).unwrap();
     AugeliteState::run(&mut AugeliteState {
         editor_content: RopeBuilder::new(),
         file_path: "".to_string(),
@@ -111,7 +109,7 @@ fn move_right() {
 }
 
 fn move_up() {
-    stdout().execute(crossterm::cursor::MoveUp(1)).unwrap();
+    execute!(stdout(), crossterm::cursor::MoveUp(1)).unwrap();
 }
 
 fn move_down() {
@@ -119,15 +117,11 @@ fn move_down() {
 }
 
 fn new_line() {
-    stdout()
-        .execute(crossterm::cursor::MoveToNextLine(1))
-        .unwrap();
+    execute!(stdout(), crossterm::cursor::MoveToNextLine(1)).unwrap();
 }
 
 fn up_line() {
-    stdout()
-        .execute(crossterm::cursor::MoveToPreviousLine(1))
-        .unwrap();
+    execute!(stdout(), crossterm::cursor::MoveToPreviousLine(1)).unwrap();
 }
 
 fn clear_terminal() {
