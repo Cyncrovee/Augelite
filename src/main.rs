@@ -6,7 +6,7 @@ use crossterm::{
 use ropey::{Rope, RopeBuilder};
 
 struct AugeliteState {
-    editor_content: RopeBuilder,
+    buffer: RopeBuilder,
     // file_path: String,
 }
 
@@ -20,7 +20,7 @@ fn main() -> std::io::Result<()> {
     crossterm::terminal::enable_raw_mode().unwrap();
     execute!(stdout(), crossterm::cursor::Show).unwrap();
     AugeliteState::run(&mut AugeliteState {
-        editor_content: RopeBuilder::new(),
+        buffer: RopeBuilder::new(),
         // file_path: "".to_string(),
     });
 
@@ -41,12 +41,12 @@ impl AugeliteState {
                                 break;
                             }
                             move_right();
-                            self.editor_content.append(c.to_string().as_str());
-                            print_content(self.editor_content.clone().finish(), false).unwrap();
+                            self.buffer.append(c.to_string().as_str());
+                            print_content(self.buffer.clone().finish(), false).unwrap();
                         }
                         KeyCode::Left => {
                             let cursor_pos = cursor::position().unwrap();
-                            let text = self.editor_content.clone().finish();
+                            let text = self.buffer.clone().finish();
                             if cursor_pos.0 == 0 && cursor_pos.1 != 0 {
                                 if let Some(line) = text.lines().nth(cursor_pos.1 as usize - 1) {
                                     up_line();
@@ -59,7 +59,7 @@ impl AugeliteState {
                         KeyCode::Right => {
                             let mut will_move_right = true;
                             let cursor_pos = cursor::position().unwrap();
-                            let text = self.editor_content.clone().finish();
+                            let text = self.buffer.clone().finish();
                             if text.lines().nth(cursor_pos.1 as usize + 1).is_some()
                                 && text.line(cursor_pos.1 as usize).char(cursor_pos.0 as usize)
                                     == '\n'
@@ -79,20 +79,20 @@ impl AugeliteState {
                         }
                         KeyCode::Down => {
                             let cursor_pos = cursor::position().unwrap();
-                            let text = self.editor_content.clone().finish();
+                            let text = self.buffer.clone().finish();
                             if text.lines().nth(cursor_pos.1 as usize + 1).is_some() {
                                 move_down();
                             }
                         }
                         KeyCode::Enter => {
-                            self.editor_content.append("\n");
+                            self.buffer.append("\n");
                             new_line();
                         }
                         KeyCode::Backspace => {
-                            let mut text = self.editor_content.clone().finish().to_string();
+                            let mut text = self.buffer.clone().finish().to_string();
                             text.pop();
-                            self.editor_content = RopeBuilder::new();
-                            self.editor_content.append(text.as_str());
+                            self.buffer = RopeBuilder::new();
+                            self.buffer.append(text.as_str());
                             if cursor::position().unwrap().0 != 0 {
                                 move_left();
                             } else {
@@ -100,7 +100,7 @@ impl AugeliteState {
                                 execute!(
                                     stdout(),
                                     cursor::MoveRight(
-                                        self.editor_content
+                                        self.buffer
                                             .clone()
                                             .finish()
                                             .line(crossterm::cursor::position().unwrap().1.into())
@@ -111,7 +111,7 @@ impl AugeliteState {
                                 )
                                 .unwrap();
                             }
-                            print_content(self.editor_content.clone().finish(), true).unwrap();
+                            print_content(self.buffer.clone().finish(), true).unwrap();
                         }
                         KeyCode::Esc => {
                             execute!(stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
