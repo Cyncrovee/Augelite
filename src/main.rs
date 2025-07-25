@@ -46,29 +46,32 @@ impl AugeliteState {
                             move_left();
                         }
                         KeyCode::Right => {
+                            let mut will_move_right = true;
                             let cursor_pos = cursor::position().unwrap();
                             let text = self.editor_content.clone().finish();
-                            if text
-                                .lines()
-                                .nth(cursor_pos.1 as usize + 1)
-                                .is_some()
-                            {
-                                if text
-                                    .line(cursor_pos.1 as usize)
-                                    .char(cursor_pos.0 as usize)
+                            if text.lines().nth(cursor_pos.1 as usize + 1).is_some()
+                                && text.line(cursor_pos.1 as usize).char(cursor_pos.0 as usize)
                                     == '\n'
-                                {
-                                    new_line();
-                                } else {
-                                    move_right();
-                                }
+                            {
+                                will_move_right = false;
+                                new_line();
+                            }
+                            if text.line(cursor_pos.1 as usize).len_chars() == cursor_pos.0 as usize {
+                                will_move_right = false;
+                            }
+                            if will_move_right {
+                                move_right();
                             }
                         }
                         KeyCode::Up => {
                             move_up();
                         }
                         KeyCode::Down => {
-                            move_down();
+                            let cursor_pos = cursor::position().unwrap();
+                            let text = self.editor_content.clone().finish();
+                            if text.lines().nth(cursor_pos.1 as usize + 1).is_some() {
+                                move_down();
+                            }
                         }
                         KeyCode::Enter => {
                             self.editor_content.append("\n");
