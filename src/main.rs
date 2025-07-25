@@ -1,9 +1,7 @@
 use std::io::stdout;
 
 use crossterm::{
-    ExecutableCommand, cursor,
-    event::{self, Event, KeyCode, KeyEventKind},
-    execute,
+    cursor, event::{self, Event, KeyCode, KeyEventKind, KeyModifiers}, execute
 };
 use ropey::{Rope, RopeBuilder};
 
@@ -35,9 +33,13 @@ impl AugeliteState {
         to_row(0);
         loop {
             if let Event::Key(key) = event::read().unwrap() {
-                if let KeyEventKind::Press = key.kind {
+                if key.kind == KeyEventKind::Press {
                     match key.code {
                         KeyCode::Char(c) => {
+                            if c == 'q' && key.modifiers == KeyModifiers::CONTROL {
+                                execute!(stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
+                                break;
+                            }
                             move_right();
                             self.editor_content.append(c.to_string().as_str());
                             print_content(self.editor_content.clone().finish(), false).unwrap();
@@ -112,9 +114,7 @@ impl AugeliteState {
                             print_content(self.editor_content.clone().finish(), true).unwrap();
                         }
                         KeyCode::Esc => {
-                            stdout()
-                                .execute(crossterm::terminal::LeaveAlternateScreen)
-                                .unwrap();
+                            execute!(stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
                             break;
                         }
                         _ => {}
