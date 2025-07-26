@@ -1,7 +1,9 @@
 use std::io::stdout;
 
 use crossterm::{
-    cursor, event::{self, Event, KeyCode, KeyEventKind, KeyModifiers}, execute
+    cursor,
+    event::{self, Event, KeyCode, KeyEventKind, KeyModifiers},
+    execute,
 };
 use ropey::{Rope, RopeBuilder};
 
@@ -37,7 +39,8 @@ impl AugeliteState {
                     match key.code {
                         KeyCode::Char(c) => {
                             if c == 'q' && key.modifiers == KeyModifiers::CONTROL {
-                                execute!(stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
+                                execute!(stdout(), crossterm::terminal::LeaveAlternateScreen)
+                                    .unwrap();
                                 break;
                             }
                             move_right();
@@ -67,7 +70,8 @@ impl AugeliteState {
                                 will_move_right = false;
                                 new_line();
                             }
-                            if text.line(cursor_pos.1 as usize).len_chars() == cursor_pos.0 as usize {
+                            if text.line(cursor_pos.1 as usize).len_chars() == cursor_pos.0 as usize
+                            {
                                 will_move_right = false;
                             }
                             if will_move_right {
@@ -89,29 +93,23 @@ impl AugeliteState {
                             new_line();
                         }
                         KeyCode::Backspace => {
-                            let mut text = self.buffer.clone().finish().to_string();
-                            text.pop();
-                            self.buffer = RopeBuilder::new();
-                            self.buffer.append(text.as_str());
-                            if cursor::position().unwrap().0 != 0 {
-                                move_left();
-                            } else {
-                                up_line();
-                                execute!(
-                                    stdout(),
-                                    cursor::MoveRight(
-                                        self.buffer
-                                            .clone()
-                                            .finish()
-                                            .line(crossterm::cursor::position().unwrap().1.into())
-                                            .len_chars()
-                                            .try_into()
-                                            .unwrap()
-                                    )
-                                )
-                                .unwrap();
+                            let cursor_pos = cursor::position().unwrap();
+                            if cursor_pos != (0, 0) {
+                                let mut text = self.buffer.clone().finish();
+                                let char = text.line_to_char(cursor_pos.1 as usize)
+                                    + cursor_pos.0 as usize
+                                    - 1;
+                                text.remove(char..char + 1);
+                                self.buffer = RopeBuilder::new();
+                                self.buffer.append(text.to_string().as_str());
+                                if cursor::position().unwrap().0 != 0 {
+                                    move_left();
+                                } else {
+                                    up_line();
+                                    to_col(text.line(cursor::position().unwrap().1.into()).len_chars().try_into().unwrap());
+                                }
+                                print_content(self.buffer.clone().finish(), true).unwrap();
                             }
-                            print_content(self.buffer.clone().finish(), true).unwrap();
                         }
                         KeyCode::Esc => {
                             execute!(stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
