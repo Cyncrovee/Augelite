@@ -3,12 +3,11 @@ use std::io::stdout;
 use crossterm::{
     cursor,
     event::{self, Event, KeyCode, KeyEventKind, KeyModifiers},
-    execute, terminal::{self, ClearType},
+    execute,
 };
 use ropey::RopeBuilder;
 use util::{
-    check_target_col, move_down, move_left, move_right, move_up, new_line, print_content, to_col,
-    to_row, up_line,
+    check_target_col, move_down, move_left, move_right, move_up, new_line, print_content, statusline, to_col, to_row, up_line
 };
 
 mod util;
@@ -210,21 +209,4 @@ impl AugeliteState {
             }
         }
     }
-}
-
-fn statusline(main_struct: &AugeliteState) -> std::io::Result<()> {
-    execute!(stdout(), cursor::SavePosition)?;
-    to_col(1);
-    to_row(terminal::size().unwrap().1 - 1);
-    execute!(stdout(), terminal::Clear(ClearType::CurrentLine))?;
-    match main_struct.mode {
-        Mode::Ovr => print!("OVERVIEW"),
-        Mode::Ins => print!("INSERT"),
-    }
-    print!(" | ");
-    print!("{}", main_struct.cursor_pos.1 as usize);
-    print!(":");
-    print!("{}", main_struct.cursor_pos.0 as usize);
-    execute!(stdout(), cursor::RestorePosition)?;
-    Ok(())
 }
