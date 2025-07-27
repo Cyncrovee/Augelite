@@ -46,6 +46,7 @@ impl AugeliteState {
     fn run(&mut self) {
         to_col(0);
         to_row(0);
+        statusline(self).unwrap();
         loop {
             if let Event::Key(key) = event::read().unwrap() {
                 if key.kind == KeyEventKind::Press {
