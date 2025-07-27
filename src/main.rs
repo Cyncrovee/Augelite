@@ -40,14 +40,21 @@ impl AugeliteState {
                 if key.kind == KeyEventKind::Press {
                     match key.code {
                         KeyCode::Char(c) => {
+                            let cursor_pos = cursor::position().unwrap();
                             if c == 'q' && key.modifiers == KeyModifiers::CONTROL {
                                 execute!(stdout(), crossterm::terminal::LeaveAlternateScreen)
                                     .unwrap();
                                 break;
                             } else {
-                                move_right();
-                                self.buffer.append(c.to_string().as_str());
+                                let text = self.buffer.clone().finish();
+                                let char = text.line_to_char(cursor_pos.1 as usize)
+                                    + cursor_pos.0 as usize;
+                                let mut text = text.to_string();
+                                text.insert(char, c);
+                                self.buffer = RopeBuilder::new();
+                                self.buffer.append(text.as_str());
                                 print_content(self.buffer.clone().finish(), false).unwrap();
+                                move_right();
                                 self.target_col = cursor::position().unwrap().0.into();
                             }
                         }
@@ -138,7 +145,6 @@ impl AugeliteState {
                         }
                         KeyCode::Backspace => {
                             let cursor_pos = cursor::position().unwrap();
-                            // self.target_col = cursor_pos.0.into();
                             if cursor_pos != (0, 0) {
                                 let mut text = self.buffer.clone().finish();
                                 let char = text.line_to_char(cursor_pos.1 as usize)
@@ -160,6 +166,7 @@ impl AugeliteState {
                                 }
                                 print_content(self.buffer.clone().finish(), true).unwrap();
                             }
+                            self.target_col = cursor_pos.0.into();
                         }
                         KeyCode::Esc => {
                             execute!(stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
