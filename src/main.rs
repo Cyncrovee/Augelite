@@ -15,7 +15,8 @@ mod util;
 
 struct AugeliteState {
     buffer: RopeBuilder,
-    target_col: usize, // file_path: String,
+    cursor_pos: (u16, u16),
+    target_col: usize,
 }
 
 fn main() -> std::io::Result<()> {
@@ -25,6 +26,7 @@ fn main() -> std::io::Result<()> {
     execute!(stdout(), crossterm::cursor::Show).unwrap();
     AugeliteState::run(&mut AugeliteState {
         buffer: RopeBuilder::new(),
+        cursor_pos: (0, 0),
         target_col: 0,
     });
 
@@ -40,15 +42,14 @@ impl AugeliteState {
                 if key.kind == KeyEventKind::Press {
                     match key.code {
                         KeyCode::Char(c) => {
-                            let cursor_pos = cursor::position().unwrap();
                             if c == 'q' && key.modifiers == KeyModifiers::CONTROL {
                                 execute!(stdout(), crossterm::terminal::LeaveAlternateScreen)
                                     .unwrap();
                                 break;
                             } else {
                                 let text = self.buffer.clone().finish();
-                                let char = text.line_to_char(cursor_pos.1 as usize)
-                                    + cursor_pos.0 as usize;
+                                let char = text.line_to_char(self.cursor_pos.1 as usize)
+                                    + self.cursor_pos.0 as usize;
                                 let mut text = text.to_string();
                                 text.insert(char, c);
                                 self.buffer = RopeBuilder::new();
@@ -59,10 +60,9 @@ impl AugeliteState {
                             }
                         }
                         KeyCode::Left => {
-                            let cursor_pos = cursor::position().unwrap();
                             let text = self.buffer.clone().finish();
-                            if cursor_pos.0 == 0 && cursor_pos.1 != 0 {
-                                if let Some(line) = text.lines().nth(cursor_pos.1 as usize - 1) {
+                            if self.cursor_pos.0 == 0 && self.cursor_pos.1 != 0 {
+                                if let Some(line) = text.lines().nth(self.cursor_pos.1 as usize - 1) {
                                     up_line();
                                     to_col((line.len_chars()) as u16 - 1);
                                 }
@@ -73,16 +73,15 @@ impl AugeliteState {
                         }
                         KeyCode::Right => {
                             let mut will_move_right = true;
-                            let cursor_pos = cursor::position().unwrap();
                             let text = self.buffer.clone().finish();
-                            if text.lines().nth(cursor_pos.1 as usize + 1).is_some()
-                                && text.line(cursor_pos.1 as usize).char(cursor_pos.0 as usize)
+                            if text.lines().nth(self.cursor_pos.1 as usize + 1).is_some()
+                                && text.line(self.cursor_pos.1 as usize).char(self.cursor_pos.0 as usize)
                                     == '\n'
                             {
                                 will_move_right = false;
                                 new_line();
                             }
-                            if text.line(cursor_pos.1 as usize).len_chars() == cursor_pos.0 as usize
+                            if text.line(self.cursor_pos.1 as usize).len_chars() == self.cursor_pos.0 as usize
                             {
                                 will_move_right = false;
                             }
@@ -114,9 +113,8 @@ impl AugeliteState {
                             }
                         }
                         KeyCode::Down => {
-                            let cursor_pos = cursor::position().unwrap();
                             let text = self.buffer.clone().finish();
-                            if text.lines().nth(cursor_pos.1 as usize + 1).is_some() {
+                            if text.lines().nth(self.cursor_pos.1 as usize + 1).is_some() {
                                 move_down();
                                 to_col(
                                     self.buffer
@@ -144,11 +142,10 @@ impl AugeliteState {
                             new_line();
                         }
                         KeyCode::Backspace => {
-                            let cursor_pos = cursor::position().unwrap();
-                            if cursor_pos != (0, 0) {
+                            if self.cursor_pos != (0, 0) {
                                 let mut text = self.buffer.clone().finish();
-                                let char = text.line_to_char(cursor_pos.1 as usize)
-                                    + cursor_pos.0 as usize
+                                let char = text.line_to_char(self.cursor_pos.1 as usize)
+                                    + self.cursor_pos.0 as usize
                                     - 1;
                                 text.remove(char..char + 1);
                                 self.buffer = RopeBuilder::new();
@@ -166,7 +163,7 @@ impl AugeliteState {
                                 }
                                 print_content(self.buffer.clone().finish(), true).unwrap();
                             }
-                            self.target_col = cursor_pos.0.into();
+                            self.target_col = self.cursor_pos.0.into();
                         }
                         KeyCode::Esc => {
                             execute!(stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
@@ -174,6 +171,7 @@ impl AugeliteState {
                         }
                         _ => {}
                     }
+                    self.cursor_pos = cursor::position().unwrap();
                 }
             }
         }
