@@ -7,14 +7,15 @@ use crossterm::{
 };
 use ropey::RopeBuilder;
 use util::{
-    move_down, move_left, move_right, move_up, new_line, print_content, to_col, to_row, up_line,
+    check_target_col, move_down, move_left, move_right, move_up, new_line, print_content, to_col,
+    to_row, up_line,
 };
 
 mod util;
 
 struct AugeliteState {
     buffer: RopeBuilder,
-    // file_path: String,
+    target_col: usize, // file_path: String,
 }
 
 fn main() -> std::io::Result<()> {
@@ -24,7 +25,7 @@ fn main() -> std::io::Result<()> {
     execute!(stdout(), crossterm::cursor::Show).unwrap();
     AugeliteState::run(&mut AugeliteState {
         buffer: RopeBuilder::new(),
-        // file_path: "".to_string(),
+        target_col: 0,
     });
 
     Ok(())
@@ -43,10 +44,12 @@ impl AugeliteState {
                                 execute!(stdout(), crossterm::terminal::LeaveAlternateScreen)
                                     .unwrap();
                                 break;
+                            } else {
+                                move_right();
+                                self.buffer.append(c.to_string().as_str());
+                                print_content(self.buffer.clone().finish(), false).unwrap();
+                                self.target_col = cursor::position().unwrap().0.into();
                             }
-                            move_right();
-                            self.buffer.append(c.to_string().as_str());
-                            print_content(self.buffer.clone().finish(), false).unwrap();
                         }
                         KeyCode::Left => {
                             let cursor_pos = cursor::position().unwrap();
@@ -59,6 +62,7 @@ impl AugeliteState {
                             } else {
                                 move_left();
                             }
+                            self.target_col = cursor::position().unwrap().0.into();
                         }
                         KeyCode::Right => {
                             let mut will_move_right = true;
@@ -78,15 +82,54 @@ impl AugeliteState {
                             if will_move_right {
                                 move_right();
                             }
+                            self.target_col = cursor::position().unwrap().0.into();
                         }
                         KeyCode::Up => {
                             move_up();
+                            to_col(
+                                self.buffer
+                                    .clone()
+                                    .finish()
+                                    .line(cursor::position().unwrap().1.into())
+                                    .len_chars()
+                                    .try_into()
+                                    .unwrap(),
+                            );
+                            move_left();
+                            if self.target_col != 0
+                                && check_target_col(
+                                    self.buffer.clone().finish(),
+                                    cursor::position().unwrap().1.into(),
+                                    self.target_col,
+                                )
+                            {
+                                to_col(self.target_col as u16);
+                            }
                         }
                         KeyCode::Down => {
                             let cursor_pos = cursor::position().unwrap();
                             let text = self.buffer.clone().finish();
                             if text.lines().nth(cursor_pos.1 as usize + 1).is_some() {
                                 move_down();
+                                to_col(
+                                    self.buffer
+                                        .clone()
+                                        .finish()
+                                        .line(cursor::position().unwrap().1.into())
+                                        .len_chars()
+                                        .try_into()
+                                        .unwrap(),
+                                );
+                                move_left();
+                                if self.target_col != 0
+                                    && check_target_col(
+                                        self.buffer.clone().finish(),
+                                        (cursor::position().unwrap().1).into(),
+                                        self.target_col,
+                                    )
+                                {
+                                    to_col(self.target_col as u16);
+                                }
                             }
                         }
                         KeyCode::Enter => {
@@ -95,6 +138,7 @@ impl AugeliteState {
                         }
                         KeyCode::Backspace => {
                             let cursor_pos = cursor::position().unwrap();
+                            // self.target_col = cursor_pos.0.into();
                             if cursor_pos != (0, 0) {
                                 let mut text = self.buffer.clone().finish();
                                 let char = text.line_to_char(cursor_pos.1 as usize)
