@@ -11,6 +11,7 @@ use util::{
 };
 
 mod util;
+mod cursor_movement;
 
 enum Mode {
     Ovr,
@@ -86,87 +87,16 @@ impl AugeliteState {
                                 }
                             }
                             KeyCode::Left => {
-                                let text = self.buffer.clone().finish();
-                                if self.cursor_pos.0 == 0 && self.cursor_pos.1 != 0 {
-                                    if let Some(line) =
-                                        text.lines().nth(self.cursor_pos.1 as usize - 1)
-                                    {
-                                        up_line();
-                                        to_col((line.len_chars()) as u16 - 1);
-                                    }
-                                } else {
-                                    move_left();
-                                }
-                                self.target_col = cursor::position().unwrap().0.into();
+                                cursor_movement::cursor_left(self);
                             }
                             KeyCode::Right => {
-                                let mut will_move_right = true;
-                                let text = self.buffer.clone().finish();
-                                if text.lines().nth(self.cursor_pos.1 as usize + 1).is_some()
-                                    && text
-                                        .line(self.cursor_pos.1 as usize)
-                                        .char(self.cursor_pos.0 as usize)
-                                        == '\n'
-                                {
-                                    will_move_right = false;
-                                    new_line();
-                                }
-                                if text.line(self.cursor_pos.1 as usize).len_chars()
-                                    == self.cursor_pos.0 as usize
-                                {
-                                    will_move_right = false;
-                                }
-                                if will_move_right {
-                                    move_right();
-                                }
-                                self.target_col = cursor::position().unwrap().0.into();
+                                cursor_movement::cursor_right(self);
                             }
                             KeyCode::Up => {
-                                move_up();
-                                to_col(
-                                    self.buffer
-                                        .clone()
-                                        .finish()
-                                        .line(cursor::position().unwrap().1.into())
-                                        .len_chars()
-                                        .try_into()
-                                        .unwrap(),
-                                );
-                                move_left();
-                                if self.target_col != 0
-                                    && check_target_col(
-                                        self.buffer.clone().finish(),
-                                        cursor::position().unwrap().1.into(),
-                                        self.target_col,
-                                    )
-                                {
-                                    to_col(self.target_col as u16);
-                                }
+                                cursor_movement::cursor_up(self);
                             }
                             KeyCode::Down => {
-                                let text = self.buffer.clone().finish();
-                                if text.lines().nth(self.cursor_pos.1 as usize + 1).is_some() {
-                                    move_down();
-                                    to_col(
-                                        self.buffer
-                                            .clone()
-                                            .finish()
-                                            .line(cursor::position().unwrap().1.into())
-                                            .len_chars()
-                                            .try_into()
-                                            .unwrap(),
-                                    );
-                                    move_left();
-                                    if self.target_col != 0
-                                        && check_target_col(
-                                            self.buffer.clone().finish(),
-                                            (cursor::position().unwrap().1).into(),
-                                            self.target_col,
-                                        )
-                                    {
-                                        to_col(self.target_col as u16);
-                                    }
-                                }
+                                cursor_movement::cursor_down(self);
                             }
                             KeyCode::Enter => {
                                 self.buffer.append("\n");
