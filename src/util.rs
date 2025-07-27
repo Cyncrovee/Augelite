@@ -43,9 +43,11 @@ pub fn statusline(main_struct: &crate::AugeliteState) -> std::io::Result<()> {
         Mode::Ins => print!("INSERT"),
     }
     print!(" | ");
-    print!("{}", main_struct.cursor_pos.1 as usize);
+    print!("{}", main_struct.cursor_pos.1);
     print!(":");
-    print!("{}", main_struct.cursor_pos.0 as usize);
+    print!("{}", main_struct.cursor_pos.0);
+    print!(" | ");
+    print!("{}", main_struct.cursor_char);
     execute!(stdout(), cursor::RestorePosition)?;
     Ok(())
 }
