@@ -52,21 +52,40 @@ impl AugeliteState {
                 if key.kind == KeyEventKind::Press {
                     match self.mode {
                         Mode::Ovr => {
-                            if let KeyCode::Char(c) = key.code {
-                                match c {
-                                    'i' => self.mode = Mode::Ins,
-                                    'q' => {
-                                        if key.modifiers == KeyModifiers::CONTROL {
-                                            execute!(
-                                                stdout(),
-                                                crossterm::terminal::LeaveAlternateScreen
-                                            )
-                                            .unwrap();
-                                            break;
+                            match key.code {
+                                KeyCode::Char(c) => {
+                                    match c {
+                                        'i' => self.mode = Mode::Ins,
+                                        'h' => cursor_movement::cursor_left(self),
+                                        'j' => cursor_movement::cursor_up(self),
+                                        'k' => cursor_movement::cursor_down(self),
+                                        'l' => cursor_movement::cursor_right(self),
+                                        'q' => {
+                                            if key.modifiers == KeyModifiers::CONTROL {
+                                                execute!(
+                                                    stdout(),
+                                                    crossterm::terminal::LeaveAlternateScreen
+                                                )
+                                                .unwrap();
+                                                break;
+                                            }
                                         }
+                                        _ => {}
                                     }
-                                    _ => {}
                                 }
+                                KeyCode::Left => {
+                                    cursor_movement::cursor_left(self);
+                                }
+                                KeyCode::Right => {
+                                    cursor_movement::cursor_right(self);
+                                }
+                                KeyCode::Up => {
+                                    cursor_movement::cursor_up(self);
+                                }
+                                KeyCode::Down => {
+                                    cursor_movement::cursor_down(self);
+                                }
+                                _ => {}
                             }
                         }
                         Mode::Ins => match key.code {
