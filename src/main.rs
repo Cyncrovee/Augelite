@@ -12,6 +12,7 @@ use util::{
 
 mod util;
 mod cursor_movement;
+mod modes;
 
 enum Mode {
     Ovr,
@@ -52,33 +53,7 @@ impl AugeliteState {
                 if key.kind == KeyEventKind::Press {
                     match self.mode {
                         Mode::Ovr => {
-                            match key.code {
-                                KeyCode::Char(c) => {
-                                    match c {
-                                        'i' => self.mode = Mode::Ins,
-                                        'h' => cursor_movement::cursor_left(self),
-                                        'j' => cursor_movement::cursor_up(self),
-                                        'k' => cursor_movement::cursor_down(self),
-                                        'l' => cursor_movement::cursor_right(self),
-                                        'q' => {
-                                            if key.modifiers == KeyModifiers::CONTROL {
-                                                execute!(
-                                                    stdout(),
-                                                    crossterm::terminal::LeaveAlternateScreen
-                                                )
-                                                .unwrap();
-                                                break;
-                                            }
-                                        }
-                                        _ => {}
-                                    }
-                                }
-                                KeyCode::Left => cursor_movement::cursor_left(self),
-                                KeyCode::Right => cursor_movement::cursor_right(self),
-                                KeyCode::Up => cursor_movement::cursor_up(self),
-                                KeyCode::Down => cursor_movement::cursor_down(self),
-                                _ => {}
-                            }
+                            modes::overview::overview_input(key, self);
                         }
                         Mode::Ins => match key.code {
                             KeyCode::Char(c) => {
