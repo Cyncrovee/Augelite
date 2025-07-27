@@ -73,18 +73,10 @@ impl AugeliteState {
                                         _ => {}
                                     }
                                 }
-                                KeyCode::Left => {
-                                    cursor_movement::cursor_left(self);
-                                }
-                                KeyCode::Right => {
-                                    cursor_movement::cursor_right(self);
-                                }
-                                KeyCode::Up => {
-                                    cursor_movement::cursor_up(self);
-                                }
-                                KeyCode::Down => {
-                                    cursor_movement::cursor_down(self);
-                                }
+                                KeyCode::Left => cursor_movement::cursor_left(self),
+                                KeyCode::Right => cursor_movement::cursor_right(self),
+                                KeyCode::Up => cursor_movement::cursor_up(self),
+                                KeyCode::Down => cursor_movement::cursor_down(self),
                                 _ => {}
                             }
                         }
