@@ -3,7 +3,7 @@ pub enum Mode {
     Ins,
 }
 
-pub(crate) struct AugeliteState {
+pub struct AugeliteState {
     pub buffer: ropey::RopeBuilder,
     pub cursor_pos: (u16, u16),
     pub cursor_char: usize,

@@ -7,10 +7,7 @@ use crossterm::{
 };
 use ropey::RopeBuilder;
 
-use crate::{
-    AugeliteState, Mode, cursor_movement,
-    util::{move_left, move_right, new_line, print_content, to_col, up_line},
-};
+use crate::{util::{cursor_movement, misc::{move_left, move_right, new_line, print_content, to_col, up_line}, model::Mode}, AugeliteState};
 
 pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
     match key.code {

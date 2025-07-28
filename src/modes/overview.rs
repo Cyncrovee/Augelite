@@ -5,11 +5,7 @@ use crossterm::{
     execute,
 };
 
-use crate::{
-    AugeliteState, Mode,
-    cursor_movement::{self, cursor_max_col},
-    util::to_col,
-};
+use crate::{util::{cursor_movement::{self, cursor_max_col}, misc::to_col, model::Mode}, AugeliteState};
 
 pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
     match key.code {

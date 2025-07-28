@@ -1,11 +1,8 @@
 use crossterm::cursor;
 
-use crate::{
-    AugeliteState,
-    util::{
-        check_target_col, move_down, move_left, move_right, move_up, new_line, to_col, up_line,
-    },
-};
+use crate::AugeliteState;
+
+use super::misc::{check_target_col, move_down, move_left, move_right, move_up, new_line, to_col, up_line};
 
 pub fn cursor_left(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();

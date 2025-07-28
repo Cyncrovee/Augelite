@@ -5,12 +5,9 @@ use crossterm::{
     event::{self, Event, KeyEventKind},
     execute,
 };
-use model::{AugeliteState, Mode};
 use ropey::RopeBuilder;
-use util::{statusline, to_col, to_row};
+use util::{misc::{statusline, to_col, to_row}, model::{AugeliteState, Mode}};
 
-mod cursor_movement;
-mod model;
 mod modes;
 mod util;
 
