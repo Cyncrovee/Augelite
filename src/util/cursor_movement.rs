@@ -99,6 +99,27 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
     }
 }
 
+pub fn cursor_word(main_struct: &mut AugeliteState) {
+    let text = main_struct.buffer.clone().finish();
+    let line = text.line(main_struct.cursor_pos.1 as usize);
+    let start = main_struct.cursor_pos.0 as usize;
+    let line_slice = line.slice(start..line.len_chars());
+    let mut col: u16 = 0;
+    for char in line_slice.chars() {
+        if char != ' ' {
+            col += 1;
+        } else {
+            match col != 0 {
+                true => break,
+                false => {
+                    col += 1;
+                }
+            }
+        }
+    }
+    to_col(main_struct.cursor_pos.0 + col);
+}
+
 pub fn cursor_max_col(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
     to_col(text.line(main_struct.cursor_pos.1.into()).len_chars() as u16);

@@ -32,6 +32,9 @@ pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 cursor_max_col(main_struct);
                 main_struct.mode = Mode::Ins;
             }
+            'w' => {
+                cursor_movement::cursor_word(main_struct);
+            }
             'q' => {
                 if key.modifiers == KeyModifiers::CONTROL {
                     execute!(stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
