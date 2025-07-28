@@ -1,16 +1,22 @@
 use std::io::stdout;
 
-use crossterm::{cursor, event::{KeyCode, KeyEvent, KeyModifiers}, execute};
+use crossterm::{
+    cursor,
+    event::{KeyCode, KeyEvent, KeyModifiers},
+    execute,
+};
 use ropey::RopeBuilder;
 
-use crate::{cursor_movement, util::{move_left, move_right, new_line, print_content, to_col, up_line}, AugeliteState, Mode};
+use crate::{
+    AugeliteState, Mode, cursor_movement,
+    util::{move_left, move_right, new_line, print_content, to_col, up_line},
+};
 
 pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
     match key.code {
         KeyCode::Char(c) => {
             if c == 'q' && key.modifiers == KeyModifiers::CONTROL {
-                execute!(stdout(), crossterm::terminal::LeaveAlternateScreen)
-                    .unwrap();
+                execute!(stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
                 return false;
             } else {
                 let text = main_struct.buffer.clone().finish();

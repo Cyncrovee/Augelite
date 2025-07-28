@@ -1,13 +1,16 @@
 use crossterm::cursor;
 
-use crate::{util::{check_target_col, move_down, move_left, move_right, move_up, new_line, to_col, up_line}, AugeliteState};
+use crate::{
+    AugeliteState,
+    util::{
+        check_target_col, move_down, move_left, move_right, move_up, new_line, to_col, up_line,
+    },
+};
 
 pub fn cursor_left(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
     if main_struct.cursor_pos.0 == 0 && main_struct.cursor_pos.1 != 0 {
-        if let Some(line) =
-            text.lines().nth(main_struct.cursor_pos.1 as usize - 1)
-        {
+        if let Some(line) = text.lines().nth(main_struct.cursor_pos.1 as usize - 1) {
             up_line();
             to_col((line.len_chars()) as u16 - 1);
         }
@@ -20,7 +23,10 @@ pub fn cursor_left(main_struct: &mut AugeliteState) {
 pub fn cursor_right(main_struct: &mut AugeliteState) {
     let mut will_move_right = true;
     let text = main_struct.buffer.clone().finish();
-    if text.lines().nth(main_struct.cursor_pos.1 as usize + 1).is_some()
+    if text
+        .lines()
+        .nth(main_struct.cursor_pos.1 as usize + 1)
+        .is_some()
         && text
             .line(main_struct.cursor_pos.1 as usize)
             .char(main_struct.cursor_pos.0 as usize)
@@ -29,8 +35,7 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
         will_move_right = false;
         new_line();
     }
-    if text.line(main_struct.cursor_pos.1 as usize).len_chars()
-        == main_struct.cursor_pos.0 as usize
+    if text.line(main_struct.cursor_pos.1 as usize).len_chars() == main_struct.cursor_pos.0 as usize
     {
         will_move_right = false;
     }
@@ -43,7 +48,8 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
 pub fn cursor_up(main_struct: &mut AugeliteState) {
     move_up();
     to_col(
-        main_struct.buffer
+        main_struct
+            .buffer
             .clone()
             .finish()
             .line(cursor::position().unwrap().1.into())
@@ -65,10 +71,15 @@ pub fn cursor_up(main_struct: &mut AugeliteState) {
 
 pub fn cursor_down(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
-    if text.lines().nth(main_struct.cursor_pos.1 as usize + 1).is_some() {
+    if text
+        .lines()
+        .nth(main_struct.cursor_pos.1 as usize + 1)
+        .is_some()
+    {
         move_down();
         to_col(
-            main_struct.buffer
+            main_struct
+                .buffer
                 .clone()
                 .finish()
                 .line(cursor::position().unwrap().1.into())
@@ -87,4 +98,9 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
             to_col(main_struct.target_col as u16);
         }
     }
+}
+
+pub fn cursor_max_col(main_struct: &mut AugeliteState) {
+    let text = main_struct.buffer.clone().finish();
+    to_col(text.line(main_struct.cursor_pos.1.into()).len_chars() as u16);
 }

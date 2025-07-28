@@ -1,6 +1,9 @@
 use std::io::stdout;
 
-use crossterm::{cursor, execute, terminal::{self, ClearType}};
+use crossterm::{
+    cursor, execute,
+    terminal::{self, ClearType},
+};
 use ropey::Rope;
 
 use crate::Mode;

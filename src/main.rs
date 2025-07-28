@@ -5,27 +5,14 @@ use crossterm::{
     event::{self, Event, KeyEventKind},
     execute,
 };
+use model::{AugeliteState, Mode};
 use ropey::RopeBuilder;
-use util::{
-    statusline, to_col, to_row
-};
+use util::{statusline, to_col, to_row};
 
-mod util;
 mod cursor_movement;
+mod model;
 mod modes;
-
-enum Mode {
-    Ovr,
-    Ins,
-}
-
-struct AugeliteState {
-    buffer: RopeBuilder,
-    cursor_pos: (u16, u16),
-    cursor_char: usize,
-    target_col: usize,
-    mode: Mode,
-}
+mod util;
 
 fn main() -> std::io::Result<()> {
     execute!(stdout(), crossterm::terminal::EnterAlternateScreen).unwrap();
@@ -54,14 +41,14 @@ impl AugeliteState {
                     match self.mode {
                         Mode::Ovr => {
                             if !modes::overview::overview_input(key, self) {
-                                break
+                                break;
                             }
                         }
                         Mode::Ins => {
                             if !modes::insert::insert_input(key, self) {
-                                break
+                                break;
                             }
-                        },
+                        }
                     }
                     self.cursor_pos = cursor::position().unwrap();
                     self.cursor_char = self
