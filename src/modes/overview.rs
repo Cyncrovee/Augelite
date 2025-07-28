@@ -10,8 +10,8 @@ pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
             match c {
                 'i' => main_struct.mode = Mode::Ins,
                 'h' => cursor_movement::cursor_left(main_struct),
-                'j' => cursor_movement::cursor_up(main_struct),
-                'k' => cursor_movement::cursor_down(main_struct),
+                'j' => cursor_movement::cursor_down(main_struct),
+                'k' => cursor_movement::cursor_up(main_struct),
                 'l' => cursor_movement::cursor_right(main_struct),
                 'q' => {
                     if key.modifiers == KeyModifiers::CONTROL {
