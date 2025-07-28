@@ -6,7 +6,10 @@ use crossterm::{
     execute,
 };
 use ropey::RopeBuilder;
-use util::{misc::{statusline, to_col, to_row}, model::{AugeliteState, Mode}};
+use util::{
+    misc::{statusline, to_col, to_row},
+    model::{AugeliteState, Mode},
+};
 
 mod modes;
 mod util;

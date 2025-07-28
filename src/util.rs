@@ -1,3 +1,3 @@
-pub mod model;
-pub mod misc;
 pub mod cursor_movement;
+pub mod misc;
+pub mod model;
