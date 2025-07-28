@@ -2,6 +2,15 @@
 
 A terminal text editor written in Rust.
 
+# Features
+## Current
+- Basic modal editing (Overview mode and Insert mode)
+## TODO
+- File loading support
+- Scrolling support
+- Word forward/backward keymaps (w/W, b/B)
+- Command mode
+
 # License
 Augelite Copyright (C) 2025 Ella Hart (AKA Cyncrovee)
 
