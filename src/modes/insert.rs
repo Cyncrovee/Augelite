@@ -11,7 +11,7 @@ use crate::{
     AugeliteState,
     util::{
         cursor_movement,
-        misc::{move_left, move_right, new_line, print_content, to_col, up_line},
+        misc::{move_left_one, move_right_one, down_line_one, print_content, to_col, up_line_one},
         model::Mode,
     },
 };
@@ -29,7 +29,7 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 main_struct.buffer = RopeBuilder::new();
                 main_struct.buffer.append(text.as_str());
                 print_content(main_struct.buffer.clone().finish(), false).unwrap();
-                move_right();
+                move_right_one();
                 main_struct.target_col = cursor::position().unwrap().0.into();
             }
         }
@@ -47,7 +47,7 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
         }
         KeyCode::Enter => {
             main_struct.buffer.append("\n");
-            new_line();
+            down_line_one();
         }
         KeyCode::Backspace => {
             if main_struct.cursor_pos != (0, 0) {
@@ -56,9 +56,9 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 main_struct.buffer = RopeBuilder::new();
                 main_struct.buffer.append(text.to_string().as_str());
                 if cursor::position().unwrap().0 != 0 {
-                    move_left();
+                    move_left_one();
                 } else {
-                    up_line();
+                    up_line_one();
                     to_col(
                         text.line(cursor::position().unwrap().1.into())
                             .len_chars()

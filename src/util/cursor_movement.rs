@@ -1,20 +1,24 @@
-use crossterm::cursor;
+use std::io::stdout;
+
+use color_eyre::owo_colors::OwoColorize;
+use crossterm::{cursor, execute};
+use ropey::{Rope, RopeSlice};
 
 use crate::AugeliteState;
 
 use super::misc::{
-    check_target_col, move_down, move_left, move_right, move_up, new_line, to_col, up_line,
+    check_target_col, move_down_one, move_left_one, move_right_one, move_up_one, down_line_one, to_col, up_line_one,
 };
 
 pub fn cursor_left(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
     if main_struct.cursor_pos.0 == 0 && main_struct.cursor_pos.1 != 0 {
         if let Some(line) = text.lines().nth(main_struct.cursor_pos.1 as usize - 1) {
-            up_line();
+            up_line_one();
             to_col((line.len_chars()) as u16 - 1);
         }
     } else {
-        move_left();
+        move_left_one();
     }
     main_struct.target_col = cursor::position().unwrap().0.into();
 }
@@ -32,20 +36,20 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
             == '\n'
     {
         will_move_right = false;
-        new_line();
+        down_line_one();
     }
     if text.line(main_struct.cursor_pos.1 as usize).len_chars() == main_struct.cursor_pos.0 as usize
     {
         will_move_right = false;
     }
     if will_move_right {
-        move_right();
+        move_right_one();
     }
     main_struct.target_col = cursor::position().unwrap().0.into();
 }
 
 pub fn cursor_up(main_struct: &mut AugeliteState) {
-    move_up();
+    move_up_one();
     to_col(
         main_struct
             .buffer
@@ -56,7 +60,7 @@ pub fn cursor_up(main_struct: &mut AugeliteState) {
             .try_into()
             .unwrap(),
     );
-    move_left();
+    move_left_one();
     if main_struct.target_col != 0
         && check_target_col(
             main_struct.buffer.clone().finish(),
@@ -75,7 +79,7 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
         .nth(main_struct.cursor_pos.1 as usize + 1)
         .is_some()
     {
-        move_down();
+        move_down_one();
         to_col(
             main_struct
                 .buffer
@@ -86,7 +90,7 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
                 .try_into()
                 .unwrap(),
         );
-        move_left();
+        move_left_one();
         if main_struct.target_col != 0
             && check_target_col(
                 main_struct.buffer.clone().finish(),

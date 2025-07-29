@@ -67,26 +67,26 @@ pub fn to_row(row: u16) {
     execute!(stdout(), crossterm::cursor::MoveToRow(row)).unwrap();
 }
 
-pub fn move_left() {
+pub fn move_left_one() {
     execute!(stdout(), crossterm::cursor::MoveLeft(1)).unwrap();
 }
 
-pub fn move_right() {
+pub fn move_right_one() {
     execute!(stdout(), crossterm::cursor::MoveRight(1)).unwrap();
 }
 
-pub fn move_up() {
+pub fn move_up_one() {
     execute!(stdout(), crossterm::cursor::MoveUp(1)).unwrap();
 }
 
-pub fn move_down() {
+pub fn move_down_one() {
     execute!(stdout(), crossterm::cursor::MoveDown(1)).unwrap();
 }
 
-pub fn new_line() {
+pub fn down_line_one() {
     execute!(stdout(), crossterm::cursor::MoveToNextLine(1)).unwrap();
 }
 
-pub fn up_line() {
+pub fn up_line_one() {
     execute!(stdout(), crossterm::cursor::MoveToPreviousLine(1)).unwrap();
 }
