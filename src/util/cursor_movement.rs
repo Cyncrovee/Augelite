@@ -1,4 +1,9 @@
-use crossterm::cursor;
+use std::io::stdout;
+
+use crossterm::{
+    cursor::{self, MoveLeft},
+    execute,
+};
 
 use crate::AugeliteState;
 
@@ -117,22 +122,39 @@ pub fn cursor_word(main_struct: &mut AugeliteState) {
                 will_move_to_col = false;
                 break;
             }
-            _ => break
+            _ => break,
         }
     }
     for char in line_slice.chars() {
         match char {
             ' ' => break,
-            '\n' => {},
+            '\n' => {}
             _ => col += 1,
         }
     }
     if will_move_to_col {
-       to_col(main_struct.cursor_pos.0 + col);
+        to_col(main_struct.cursor_pos.0 + col);
     } else {
         move_down_one();
         to_col(0);
     }
+}
+
+pub fn cursor_back(main_struct: &mut AugeliteState) {
+    let text = main_struct.buffer.clone().finish();
+    let line = text.line(main_struct.cursor_pos.1 as usize);
+    let end = main_struct.cursor_pos.0 as usize;
+    let line = line.slice(0..end);
+    let mut col: u16 = 0;
+    for char in line.to_string().chars().rev() {
+        if char != ' ' {
+            col += 1;
+        } else {
+            break;
+        }
+    }
+
+    execute!(stdout(), MoveLeft(col)).unwrap();
 }
 
 pub fn cursor_max_col(main_struct: &mut AugeliteState) {

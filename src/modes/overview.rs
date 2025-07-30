@@ -33,6 +33,7 @@ pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 main_struct.mode = Mode::Ins;
             }
             'w' => cursor_movement::cursor_word(main_struct),
+            'b' => cursor_movement::cursor_back(main_struct),
             'q' => {
                 if key.modifiers == KeyModifiers::CONTROL {
                     execute!(stdout(), crossterm::terminal::LeaveAlternateScreen).unwrap();
