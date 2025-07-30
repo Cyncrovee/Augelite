@@ -1,8 +1,4 @@
-use std::io::stdout;
-
-use color_eyre::owo_colors::OwoColorize;
-use crossterm::{cursor, execute};
-use ropey::{Rope, RopeSlice};
+use crossterm::cursor;
 
 use crate::AugeliteState;
 
