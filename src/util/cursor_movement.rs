@@ -106,22 +106,33 @@ pub fn cursor_word(main_struct: &mut AugeliteState) {
     let start = main_struct.cursor_pos.0 as usize;
     let line_slice = line.slice(start..line.len_chars());
     let mut col: u16 = 0;
+    let mut will_move_to_col = true;
     for char in line_slice.chars() {
-	if char == ' ' {
-	    col += 1;
-	    line_slice.slice(0..1);
-	} else {
-	    break;
-	}
-    }
-    for char in line_slice.chars() {
-        if char != ' ' {
-            col += 1;
-        } else {
-	    break;
+        match char {
+            ' ' => {
+                col += 1;
+                line_slice.slice(0..1);
+            }
+            '\n' => {
+                will_move_to_col = false;
+                break;
+            }
+            _ => break
         }
     }
-    to_col(main_struct.cursor_pos.0 + col);
+    for char in line_slice.chars() {
+        match char {
+            ' ' => break,
+            '\n' => {},
+            _ => col += 1,
+        }
+    }
+    if will_move_to_col {
+       to_col(main_struct.cursor_pos.0 + col);
+    } else {
+        move_down_one();
+        to_col(0);
+    }
 }
 
 pub fn cursor_max_col(main_struct: &mut AugeliteState) {
