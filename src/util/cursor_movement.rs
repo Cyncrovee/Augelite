@@ -3,7 +3,8 @@ use crossterm::cursor;
 use crate::AugeliteState;
 
 use super::misc::{
-    check_target_col, move_down_one, move_left_one, move_right_one, move_up_one, down_line_one, to_col, up_line_one,
+    check_target_col, down_line_one, move_down_one, move_left_one, move_right_one, move_up_one,
+    to_col, up_line_one,
 };
 
 pub fn cursor_left(main_struct: &mut AugeliteState) {
@@ -106,15 +107,18 @@ pub fn cursor_word(main_struct: &mut AugeliteState) {
     let line_slice = line.slice(start..line.len_chars());
     let mut col: u16 = 0;
     for char in line_slice.chars() {
+	if char == ' ' {
+	    col += 1;
+	    line_slice.slice(0..1);
+	} else {
+	    break;
+	}
+    }
+    for char in line_slice.chars() {
         if char != ' ' {
             col += 1;
         } else {
-            match col != 0 {
-                true => break,
-                false => {
-                    col += 1;
-                }
-            }
+	    break;
         }
     }
     to_col(main_struct.cursor_pos.0 + col);

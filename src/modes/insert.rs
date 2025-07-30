@@ -11,7 +11,7 @@ use crate::{
     AugeliteState,
     util::{
         cursor_movement,
-        misc::{move_left_one, move_right_one, down_line_one, print_content, to_col, up_line_one},
+        misc::{down_line_one, move_left_one, move_right_one, print_content, to_col, up_line_one},
         model::Mode,
     },
 };
