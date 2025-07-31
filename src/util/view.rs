@@ -13,17 +13,9 @@ use super::{
     model::AugeliteState,
 };
 
-pub fn clear_terminal() {
-    execute!(
-        stdout(),
-        crossterm::terminal::Clear(crossterm::terminal::ClearType::All)
-    )
-    .unwrap();
-}
-
 pub fn print_content(main_struct: &mut AugeliteState, will_clear: bool) -> std::io::Result<()> {
     if will_clear {
-        clear_terminal();
+        execute!(stdout(), crossterm::terminal::Clear(ClearType::UntilNewLine))?;
     }
     execute!(stdout(), crossterm::terminal::BeginSynchronizedUpdate)?;
     execute!(stdout(), cursor::SavePosition)?;
