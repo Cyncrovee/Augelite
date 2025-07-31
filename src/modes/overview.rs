@@ -1,8 +1,7 @@
 use std::io::stdout;
 
 use crossterm::{
-    event::{KeyCode, KeyEvent, KeyModifiers},
-    execute,
+    cursor, event::{KeyCode, KeyEvent, KeyModifiers}, execute
 };
 
 use crate::{
@@ -10,7 +9,6 @@ use crate::{
     util::{
         cursor_movement::{self, cursor_max_col},
         fs::save_file,
-        misc::to_col,
         model::Mode,
         scrolling,
     },
@@ -20,7 +18,7 @@ pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
     match key.code {
         KeyCode::Char(c) => match c {
             '0' => {
-                to_col(0);
+                execute!(stdout(), cursor::MoveToColumn(0)).unwrap();
                 main_struct.target_col = 0;
             }
             ')' => cursor_max_col(main_struct),
@@ -30,7 +28,7 @@ pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
             'k' => cursor_movement::cursor_up(main_struct),
             'l' => cursor_movement::cursor_right(main_struct),
             'I' => {
-                to_col(0);
+                execute!(stdout(), cursor::MoveToColumn(0)).unwrap();
                 main_struct.target_col = 0;
                 main_struct.mode = Mode::Ins;
             }

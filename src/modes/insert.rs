@@ -3,7 +3,7 @@ use std::io::stdout;
 use crossterm::{
     cursor,
     event::{KeyCode, KeyEvent, KeyModifiers},
-    execute,
+    execute, queue,
 };
 use ropey::RopeBuilder;
 
@@ -11,7 +11,6 @@ use crate::{
     AugeliteState,
     util::{
         cursor_movement,
-        misc::{down_line_one, move_left_one, move_right_one, to_col, up_line_one},
         model::Mode,
         scrolling::{self, scroll_down},
         view::{check_end_of_view, print_content},
@@ -31,7 +30,7 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 main_struct.buffer = RopeBuilder::new();
                 main_struct.buffer.append(text.as_str());
                 print_content(main_struct, false).unwrap();
-                move_right_one();
+                execute!(stdout(), cursor::MoveRight(1)).unwrap();
                 main_struct.target_col = cursor::position().unwrap().0.into();
             }
         }
@@ -51,11 +50,11 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
             true => {
                 main_struct.buffer.append("\n");
                 scroll_down(main_struct);
-                down_line_one();
+                execute!(stdout(), cursor::MoveToNextLine(1)).unwrap();
             }
             false => {
                 main_struct.buffer.append("\n");
-                down_line_one();
+                execute!(stdout(), cursor::MoveToNextLine(1)).unwrap();
             }
         },
         KeyCode::Backspace => {
@@ -65,15 +64,19 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 main_struct.buffer = RopeBuilder::new();
                 main_struct.buffer.append(text.to_string().as_str());
                 if main_struct.cursor_pos.0 != 0 {
-                    move_left_one();
+                    execute!(stdout(), cursor::MoveLeft(1)).unwrap();
                 } else {
-                    up_line_one();
-                    to_col(
-                        text.line(cursor::position().unwrap().1.into())
-                            .len_chars()
-                            .try_into()
-                            .unwrap(),
-                    );
+                    queue!(
+                        stdout(),
+                        cursor::MoveToPreviousLine(1),
+                        cursor::MoveToColumn(
+                            text.line(cursor::position().unwrap().1.into())
+                                .len_chars()
+                                .try_into()
+                                .unwrap()
+                        )
+                    )
+                    .unwrap();
                 }
                 main_struct.target_col = main_struct.cursor_pos.0.into();
                 print_content(main_struct, true).unwrap();

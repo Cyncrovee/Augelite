@@ -2,28 +2,26 @@ use std::io::stdout;
 
 use crossterm::{
     cursor::{self, MoveLeft},
-    execute,
+    execute, queue,
 };
 
 use crate::AugeliteState;
 
-use super::{
-    misc::{
-        down_line_one, move_down_one, move_left_one, move_right_one, move_up_one, to_col,
-        up_line_one,
-    },
-    view::check_target_col,
-};
+use super::view::check_target_col;
 
 pub fn cursor_left(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
     if main_struct.cursor_pos.0 == 0 && main_struct.cursor_pos.1 != 0 {
         if let Some(line) = text.lines().nth(main_struct.cursor_pos.1 as usize - 1) {
-            up_line_one();
-            to_col((line.len_chars()) as u16 - 1);
+            queue!(
+                stdout(),
+                cursor::MoveUp(1),
+                cursor::MoveToColumn(line.len_chars() as u16 - 1),
+            )
+            .unwrap();
         }
     } else {
-        move_left_one();
+        execute!(stdout(), cursor::MoveLeft(1)).unwrap();
     }
     main_struct.target_col = cursor::position().unwrap().0.into();
 }
@@ -41,14 +39,14 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
             == '\n'
     {
         will_move_right = false;
-        down_line_one();
+        execute!(stdout(), cursor::MoveToNextLine(1)).unwrap();
     }
     if text.line(main_struct.cursor_pos.1 as usize).len_chars() == main_struct.cursor_pos.0 as usize
     {
         will_move_right = false;
     }
     if will_move_right {
-        move_right_one();
+        execute!(stdout(), cursor::MoveRight(1)).unwrap();
     }
     main_struct.target_col = cursor::position().unwrap().0.into();
 }
@@ -56,21 +54,29 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
 pub fn cursor_up(main_struct: &mut AugeliteState) {
     if main_struct.cursor_pos.1 != 0 {
         let text = main_struct.buffer.clone().finish();
-        execute!(stdout(), cursor::Hide).unwrap();
-        move_up_one();
-        to_col(
-            text.line(cursor::position().unwrap().1.into())
-                .len_chars()
-                .try_into()
-                .unwrap(),
-        );
-        move_left_one();
+        queue!(
+            stdout(),
+            cursor::Hide,
+            cursor::MoveUp(1),
+            cursor::MoveToColumn(
+                text.line(cursor::position().unwrap().1.into())
+                    .len_chars()
+                    .try_into()
+                    .unwrap(),
+            ),
+            cursor::MoveLeft(1)
+        )
+        .unwrap();
         if check_target_col(
             text,
             cursor::position().unwrap().1.into(),
             main_struct.target_col,
         ) {
-            to_col(main_struct.target_col as u16);
+            execute!(
+                stdout(),
+                cursor::MoveToColumn(main_struct.target_col as u16)
+            )
+            .unwrap();
         }
         execute!(stdout(), cursor::Show).unwrap();
     }
@@ -83,21 +89,29 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
         .nth(main_struct.cursor_pos.1 as usize + 1)
         .is_some()
     {
-        execute!(stdout(), cursor::Hide).unwrap();
-        move_down_one();
-        to_col(
-            text.line(cursor::position().unwrap().1.into())
-                .len_chars()
-                .try_into()
-                .unwrap(),
-        );
-        move_left_one();
+        queue!(
+            stdout(),
+            cursor::Hide,
+            cursor::MoveToNextLine(1),
+            cursor::MoveToColumn(
+                text.line(cursor::position().unwrap().1.into())
+                    .len_chars()
+                    .try_into()
+                    .unwrap(),
+            ),
+            cursor::MoveLeft(1)
+        )
+        .unwrap();
         if check_target_col(
             text,
             (cursor::position().unwrap().1).into(),
             main_struct.target_col,
         ) {
-            to_col(main_struct.target_col as u16);
+            execute!(
+                stdout(),
+                cursor::MoveToColumn(main_struct.target_col as u16)
+            )
+            .unwrap();
         }
         execute!(stdout(), cursor::Show).unwrap();
     }
@@ -131,10 +145,13 @@ pub fn cursor_word(main_struct: &mut AugeliteState) {
         }
     }
     if will_move_to_col {
-        to_col(main_struct.cursor_pos.0 + col);
+        execute!(
+            stdout(),
+            cursor::MoveToColumn(main_struct.cursor_pos.0 + col)
+        )
+        .unwrap();
     } else {
-        move_down_one();
-        to_col(0);
+        queue!(stdout(), cursor::MoveDown(1), cursor::MoveToColumn(0)).unwrap();
     }
 }
 
@@ -161,6 +178,5 @@ pub fn cursor_back(main_struct: &mut AugeliteState) {
 
 pub fn cursor_max_col(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
-    to_col(text.line(main_struct.cursor_pos.1.into()).len_chars() as u16);
-    move_left_one();
+    queue!(stdout(), cursor::MoveToColumn(text.line(main_struct.cursor_pos.1.into()).len_chars() as u16), cursor::MoveLeft(1)).unwrap();
 }

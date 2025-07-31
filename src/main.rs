@@ -7,7 +7,6 @@ use crossterm::{
 };
 use ropey::RopeBuilder;
 use util::{
-    misc::{to_col, to_row},
     model::{AugeliteState, Mode},
     view::{print_content, statusline},
 };
@@ -60,8 +59,7 @@ fn main() -> std::io::Result<()> {
 
 impl AugeliteState {
     fn run(&mut self) {
-        to_col(0);
-        to_row(0);
+        execute!(stdout(), cursor::MoveTo(0, 0)).unwrap();
         if let Some(_) = self.file_path {
             print_content(self, false).unwrap();
         }
