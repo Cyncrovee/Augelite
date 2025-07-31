@@ -139,23 +139,28 @@ pub fn cursor_word(main_struct: &mut AugeliteState) {
 }
 
 pub fn cursor_back(main_struct: &mut AugeliteState) {
-    let text = main_struct.buffer.clone().finish();
-    let line = text.line(main_struct.cursor_pos.1 as usize);
-    let end = main_struct.cursor_pos.0 as usize;
-    let line = line.slice(0..end);
-    let mut col: u16 = 0;
-    for char in line.to_string().chars().rev() {
-        if char != ' ' {
-            col += 1;
-        } else {
-            break;
+    if main_struct.cursor_pos.0 == 0 {
+        cursor_left(main_struct);
+    } else {
+        let text = main_struct.buffer.clone().finish();
+        let line = text.line(main_struct.cursor_pos.1 as usize);
+        let end = main_struct.cursor_pos.0 as usize;
+        let line = line.slice(0..end);
+        let mut col: u16 = 0;
+        for char in line.to_string().chars().rev() {
+            if char != ' ' {
+                col += 1;
+            } else {
+                break;
+            }
         }
-    }
 
-    execute!(stdout(), MoveLeft(col)).unwrap();
+        execute!(stdout(), MoveLeft(col)).unwrap();
+    }
 }
 
 pub fn cursor_max_col(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
     to_col(text.line(main_struct.cursor_pos.1.into()).len_chars() as u16);
+    move_left_one();
 }
