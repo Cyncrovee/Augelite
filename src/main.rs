@@ -1,4 +1,4 @@
-use std::io::stdout;
+use std::{fs::read_to_string, io::stdout};
 
 use crossterm::{
     cursor,
@@ -9,24 +9,50 @@ use ropey::RopeBuilder;
 use util::{
     misc::{to_col, to_row},
     model::{AugeliteState, Mode},
-    view::statusline,
+    view::{print_content, statusline},
 };
 
 mod modes;
 mod util;
 
 fn main() -> std::io::Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+
     execute!(stdout(), crossterm::terminal::EnterAlternateScreen).unwrap();
     // execute!(stdout(), crossterm::terminal::DisableLineWrap).unwrap();
     crossterm::terminal::enable_raw_mode().unwrap();
     execute!(stdout(), crossterm::cursor::Show).unwrap();
     AugeliteState::run(&mut AugeliteState {
-        buffer: RopeBuilder::new(),
+        buffer: if let Some(_) = args.iter().nth(1) {
+            match read_to_string(&args[1]) {
+                Ok(f) => {
+                    let mut rope = RopeBuilder::new();
+                    rope.append(f.as_str());
+                    rope
+                }
+                Err(_) => {
+                    if let Some(_) = args.iter().nth(1) {
+                        let mut rope_builder = RopeBuilder::new();
+                        rope_builder.append(args[1].as_str());
+                        rope_builder
+                    } else {
+                        RopeBuilder::new()
+                    }
+                }
+            }
+        } else {
+            RopeBuilder::new()
+        },
         cursor_pos: (0, 0),
         cursor_char: 0,
         target_col: 0,
         scroll_offset: 0,
         mode: Mode::Ovr,
+        file_path: if let Some(_) = args.iter().nth(1) {
+            Some(args[1].clone())
+        } else {
+            None
+        },
     });
 
     Ok(())
@@ -36,6 +62,9 @@ impl AugeliteState {
     fn run(&mut self) {
         to_col(0);
         to_row(0);
+        if let Some(_) = self.file_path {
+            print_content(self, false).unwrap();
+        }
         statusline(self).unwrap();
         loop {
             if let Event::Key(key) = event::read().unwrap() {

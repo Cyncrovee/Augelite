@@ -10,4 +10,5 @@ pub struct AugeliteState {
     pub target_col: usize,
     pub scroll_offset: u16,
     pub mode: Mode,
+    pub file_path: Option<String>,
 }
