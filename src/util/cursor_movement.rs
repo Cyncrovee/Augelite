@@ -96,10 +96,12 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
             cursor::Hide,
             cursor::MoveToNextLine(1),
             cursor::MoveToColumn(
-                text.line(cursor::position().unwrap().1 as usize + main_struct.scroll_offset as usize)
-                    .len_chars()
-                    .try_into()
-                    .unwrap(),
+                text.line(
+                    cursor::position().unwrap().1 as usize + main_struct.scroll_offset as usize
+                )
+                .len_chars()
+                .try_into()
+                .unwrap(),
             ),
             cursor::MoveLeft(1)
         )
@@ -180,5 +182,10 @@ pub fn cursor_back(main_struct: &mut AugeliteState) {
 
 pub fn cursor_max_col(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
-    queue!(stdout(), cursor::MoveToColumn(text.line(main_struct.cursor_pos.1.into()).len_chars() as u16), cursor::MoveLeft(1)).unwrap();
+    queue!(
+        stdout(),
+        cursor::MoveToColumn(text.line(main_struct.cursor_pos.1.into()).len_chars() as u16),
+        cursor::MoveLeft(1)
+    )
+    .unwrap();
 }

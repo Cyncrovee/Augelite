@@ -1,7 +1,9 @@
 use std::io::stdout;
 
 use crossterm::{
-    cursor, event::{KeyCode, KeyEvent, KeyModifiers}, execute
+    cursor,
+    event::{KeyCode, KeyEvent, KeyModifiers},
+    execute,
 };
 
 use crate::{

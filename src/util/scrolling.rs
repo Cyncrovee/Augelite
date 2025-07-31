@@ -1,7 +1,8 @@
 use std::io::stdout;
 
 use crossterm::{
-    cursor, queue, terminal::{self}
+    cursor, queue,
+    terminal::{self},
 };
 
 use super::{
