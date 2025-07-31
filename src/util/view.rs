@@ -46,7 +46,7 @@ pub fn print_content(main_struct: &mut AugeliteState, will_clear: bool) -> std::
     Ok(())
 }
 
-pub fn statusline(main_struct: &crate::AugeliteState) -> std::io::Result<()> {
+pub fn statusline(main_struct: &mut AugeliteState) -> std::io::Result<()> {
     execute!(stdout(), cursor::SavePosition)?;
     to_col(1);
     to_row(terminal::size().unwrap().1 - 1);
@@ -67,4 +67,12 @@ pub fn statusline(main_struct: &crate::AugeliteState) -> std::io::Result<()> {
 
 pub fn check_target_col(buffer: Rope, line_num: usize, target_col: usize) -> bool {
     buffer.line(line_num).get_char(target_col).is_some()
+}
+
+pub fn check_end_of_view(main_struct: &mut AugeliteState) -> bool {
+    if main_struct.cursor_pos.1 >= terminal::size().unwrap().1 - 3 {
+        true
+    } else {
+        false
+    }
 }
