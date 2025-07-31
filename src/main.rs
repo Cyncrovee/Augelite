@@ -7,8 +7,9 @@ use crossterm::{
 };
 use ropey::RopeBuilder;
 use util::{
-    misc::{statusline, to_col, to_row},
+    misc::{to_col, to_row},
     model::{AugeliteState, Mode},
+    view::statusline,
 };
 
 mod modes;

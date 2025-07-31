@@ -9,9 +9,10 @@ use crate::{
     AugeliteState,
     util::{
         cursor_movement::{self, cursor_max_col},
-        misc::{print_content, to_col},
+        misc::to_col,
         model::Mode,
         scrolling,
+        view::print_content,
     },
 };
 
