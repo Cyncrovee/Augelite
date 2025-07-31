@@ -55,6 +55,7 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
 
 pub fn cursor_up(main_struct: &mut AugeliteState) {
     if main_struct.cursor_pos.1 != 0 {
+        execute!(stdout(), cursor::Hide).unwrap();
         move_up_one();
         to_col(
             main_struct
@@ -67,15 +68,14 @@ pub fn cursor_up(main_struct: &mut AugeliteState) {
                 .unwrap(),
         );
         move_left_one();
-        if main_struct.target_col != 0
-            && check_target_col(
-                main_struct.buffer.clone().finish(),
-                cursor::position().unwrap().1.into(),
-                main_struct.target_col,
-            )
-        {
+        if check_target_col(
+            main_struct.buffer.clone().finish(),
+            cursor::position().unwrap().1.into(),
+            main_struct.target_col,
+        ) {
             to_col(main_struct.target_col as u16);
         }
+        execute!(stdout(), cursor::Show).unwrap();
     }
 }
 
@@ -86,6 +86,7 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
         .nth(main_struct.cursor_pos.1 as usize + 1)
         .is_some()
     {
+        execute!(stdout(), cursor::Hide).unwrap();
         move_down_one();
         to_col(
             main_struct
@@ -98,15 +99,14 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
                 .unwrap(),
         );
         move_left_one();
-        if main_struct.target_col != 0
-            && check_target_col(
-                main_struct.buffer.clone().finish(),
-                (cursor::position().unwrap().1).into(),
-                main_struct.target_col,
-            )
-        {
+        if check_target_col(
+            main_struct.buffer.clone().finish(),
+            (cursor::position().unwrap().1).into(),
+            main_struct.target_col,
+        ) {
             to_col(main_struct.target_col as u16);
         }
+        execute!(stdout(), cursor::Show).unwrap();
     }
 }
 
