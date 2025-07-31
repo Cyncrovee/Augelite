@@ -12,7 +12,6 @@ use crate::{
         misc::to_col,
         model::Mode,
         scrolling,
-        view::print_content,
     },
 };
 
@@ -40,18 +39,12 @@ pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 if key.modifiers == KeyModifiers::CONTROL {
                     if main_struct.scroll_offset != 0 {
                         scrolling::scroll_up(main_struct);
-                        print_content(main_struct, true).unwrap();
                     }
                 }
             }
             'n' => {
                 if key.modifiers == KeyModifiers::CONTROL {
-                    if (main_struct.scroll_offset as usize)
-                        < main_struct.buffer.clone().finish().lines().count() - 1
-                    {
-                        scrolling::scroll_down(main_struct);
-                        print_content(main_struct, true).unwrap();
-                    }
+                    scrolling::scroll_down(main_struct);
                 }
             }
             'q' => {
@@ -66,20 +59,8 @@ pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
         KeyCode::Right => cursor_movement::cursor_right(main_struct),
         KeyCode::Up => cursor_movement::cursor_up(main_struct),
         KeyCode::Down => cursor_movement::cursor_down(main_struct),
-        KeyCode::PageDown => {
-            if (main_struct.scroll_offset as usize)
-                < main_struct.buffer.clone().finish().lines().count() - 1
-            {
-                scrolling::scroll_down(main_struct);
-                print_content(main_struct, true).unwrap();
-            }
-        }
-        KeyCode::PageUp => {
-            if main_struct.scroll_offset != 0 {
-                scrolling::scroll_up(main_struct);
-                print_content(main_struct, true).unwrap();
-            }
-        }
+        KeyCode::PageDown => scrolling::scroll_down(main_struct),
+        KeyCode::PageUp => scrolling::scroll_up(main_struct),
         _ => {}
     }
     true

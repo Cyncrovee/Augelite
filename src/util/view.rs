@@ -49,6 +49,8 @@ pub fn print_content(main_struct: &mut AugeliteState, will_clear: bool) -> std::
 pub fn statusline(main_struct: &mut AugeliteState) -> std::io::Result<()> {
     execute!(stdout(), cursor::SavePosition)?;
     to_col(1);
+    to_row(terminal::size().unwrap().1 - 2);
+    execute!(stdout(), terminal::Clear(ClearType::CurrentLine))?;
     to_row(terminal::size().unwrap().1 - 1);
     execute!(stdout(), terminal::Clear(ClearType::CurrentLine))?;
     match main_struct.mode {
