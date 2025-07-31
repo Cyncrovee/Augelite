@@ -59,10 +59,12 @@ pub fn cursor_up(main_struct: &mut AugeliteState) {
             cursor::Hide,
             cursor::MoveUp(1),
             cursor::MoveToColumn(
-                text.line(cursor::position().unwrap().1.into())
-                    .len_chars()
-                    .try_into()
-                    .unwrap(),
+                text.line(
+                    cursor::position().unwrap().1 as usize + main_struct.scroll_offset as usize
+                )
+                .len_chars()
+                .try_into()
+                .unwrap(),
             ),
             cursor::MoveLeft(1)
         )
