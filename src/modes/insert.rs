@@ -28,7 +28,7 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 text.insert(main_struct.cursor_char, c);
                 main_struct.buffer = RopeBuilder::new();
                 main_struct.buffer.append(text.as_str());
-                print_content(main_struct.buffer.clone().finish(), false).unwrap();
+                print_content(main_struct, false).unwrap();
                 move_right_one();
                 main_struct.target_col = cursor::position().unwrap().0.into();
             }
@@ -67,7 +67,7 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                     );
                 }
                 main_struct.target_col = main_struct.cursor_pos.0.into();
-                print_content(main_struct.buffer.clone().finish(), true).unwrap();
+                print_content(main_struct, true).unwrap();
             }
         }
         KeyCode::Esc => main_struct.mode = Mode::Ovr,

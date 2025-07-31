@@ -24,6 +24,7 @@ fn main() -> std::io::Result<()> {
         cursor_pos: (0, 0),
         cursor_char: 0,
         target_col: 0,
+        scroll_offset: 0,
         mode: Mode::Ovr,
     });
 
@@ -55,7 +56,7 @@ impl AugeliteState {
                         .buffer
                         .clone()
                         .finish()
-                        .line_to_char(self.cursor_pos.1 as usize)
+                        .line_to_char(self.cursor_pos.1 as usize + self.scroll_offset as usize)
                         + self.cursor_pos.0 as usize;
                     statusline(self).unwrap();
                 }

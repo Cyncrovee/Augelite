@@ -8,6 +8,8 @@ use ropey::Rope;
 
 use crate::Mode;
 
+use super::model::AugeliteState;
+
 pub fn clear_terminal() {
     execute!(
         stdout(),
@@ -16,7 +18,7 @@ pub fn clear_terminal() {
     .unwrap();
 }
 
-pub fn print_content(content: Rope, will_clear: bool) -> std::io::Result<()> {
+pub fn print_content(main_struct: &mut AugeliteState, will_clear: bool) -> std::io::Result<()> {
     if will_clear {
         clear_terminal();
     }
@@ -25,7 +27,12 @@ pub fn print_content(content: Rope, will_clear: bool) -> std::io::Result<()> {
     execute!(stdout(), cursor::Hide)?;
     to_col(0);
     to_row(0);
-    for line in content.lines() {
+    for line in main_struct
+        .buffer
+        .clone()
+        .finish()
+        .lines_at(main_struct.scroll_offset as usize)
+    {
         print!("{line}");
         to_col(0);
     }
@@ -46,7 +53,7 @@ pub fn statusline(main_struct: &crate::AugeliteState) -> std::io::Result<()> {
         Mode::Ins => print!("INSERT"),
     }
     print!(" | ");
-    print!("{}", main_struct.cursor_pos.1);
+    print!("{}", main_struct.cursor_pos.1 + main_struct.scroll_offset);
     print!(":");
     print!("{}", main_struct.cursor_pos.0);
     print!(" | ");
