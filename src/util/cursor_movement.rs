@@ -55,21 +55,18 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
 
 pub fn cursor_up(main_struct: &mut AugeliteState) {
     if main_struct.cursor_pos.1 != 0 {
+        let text = main_struct.buffer.clone().finish();
         execute!(stdout(), cursor::Hide).unwrap();
         move_up_one();
         to_col(
-            main_struct
-                .buffer
-                .clone()
-                .finish()
-                .line(cursor::position().unwrap().1.into())
+            text.line(cursor::position().unwrap().1.into())
                 .len_chars()
                 .try_into()
                 .unwrap(),
         );
         move_left_one();
         if check_target_col(
-            main_struct.buffer.clone().finish(),
+            text,
             cursor::position().unwrap().1.into(),
             main_struct.target_col,
         ) {
@@ -89,18 +86,14 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
         execute!(stdout(), cursor::Hide).unwrap();
         move_down_one();
         to_col(
-            main_struct
-                .buffer
-                .clone()
-                .finish()
-                .line(cursor::position().unwrap().1.into())
+            text.line(cursor::position().unwrap().1.into())
                 .len_chars()
                 .try_into()
                 .unwrap(),
         );
         move_left_one();
         if check_target_col(
-            main_struct.buffer.clone().finish(),
+            text,
             (cursor::position().unwrap().1).into(),
             main_struct.target_col,
         ) {
