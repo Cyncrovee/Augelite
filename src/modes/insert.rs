@@ -49,8 +49,8 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
         }
         KeyCode::Enter => match check_end_of_view(main_struct) {
             true => {
-                scroll_down(main_struct);
                 main_struct.buffer.append("\n");
+                scroll_down(main_struct);
                 down_line_one();
             }
             false => {
@@ -64,7 +64,7 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 text.remove(main_struct.cursor_char - 1..main_struct.cursor_char);
                 main_struct.buffer = RopeBuilder::new();
                 main_struct.buffer.append(text.to_string().as_str());
-                if cursor::position().unwrap().0 != 0 {
+                if main_struct.cursor_pos.0 != 0 {
                     move_left_one();
                 } else {
                     up_line_one();
@@ -80,20 +80,8 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
             }
         }
         KeyCode::Esc => main_struct.mode = Mode::Ovr,
-        KeyCode::PageDown => {
-            if (main_struct.scroll_offset as usize)
-                < main_struct.buffer.clone().finish().lines().count() - 1
-            {
-                scrolling::scroll_down(main_struct);
-                print_content(main_struct, true).unwrap();
-            }
-        }
-        KeyCode::PageUp => {
-            if main_struct.scroll_offset != 0 {
-                scrolling::scroll_up(main_struct);
-                print_content(main_struct, true).unwrap();
-            }
-        }
+        KeyCode::PageDown => scrolling::scroll_down(main_struct),
+        KeyCode::PageUp => scrolling::scroll_up(main_struct),
         _ => {}
     }
     true

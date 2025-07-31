@@ -58,6 +58,10 @@ pub fn statusline(main_struct: &mut AugeliteState) -> std::io::Result<()> {
         Mode::Ins => print!("INSERT"),
     }
     print!(" | ");
+    if let Some(path) = main_struct.file_path.clone() {
+        print!("{}", path);
+        print!(" | ");
+    }
     print!("{}", main_struct.cursor_pos.1 + main_struct.scroll_offset);
     print!(":");
     print!("{}", main_struct.cursor_pos.0);

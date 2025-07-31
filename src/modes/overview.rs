@@ -9,6 +9,7 @@ use crate::{
     AugeliteState,
     util::{
         cursor_movement::{self, cursor_max_col},
+        fs::save_file,
         misc::to_col,
         model::Mode,
         scrolling,
@@ -49,6 +50,11 @@ pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
             'n' => {
                 if key.modifiers == KeyModifiers::CONTROL {
                     scrolling::scroll_down(main_struct);
+                }
+            }
+            's' => {
+                if key.modifiers == KeyModifiers::CONTROL {
+                    save_file(main_struct);
                 }
             }
             'q' => {
