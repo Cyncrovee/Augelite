@@ -1,11 +1,6 @@
 use std::io::stdout;
 
 use crossterm::execute;
-use ropey::Rope;
-
-pub fn check_target_col(buffer: Rope, line_num: usize, target_col: usize) -> bool {
-    buffer.line(line_num).get_char(target_col).is_some()
-}
 
 pub fn to_col(col: u16) {
     execute!(stdout(), crossterm::cursor::MoveToColumn(col)).unwrap();

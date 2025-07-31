@@ -7,9 +7,12 @@ use crossterm::{
 
 use crate::AugeliteState;
 
-use super::misc::{
-    check_target_col, down_line_one, move_down_one, move_left_one, move_right_one, move_up_one,
-    to_col, up_line_one,
+use super::{
+    misc::{
+        down_line_one, move_down_one, move_left_one, move_right_one, move_up_one, to_col,
+        up_line_one,
+    },
+    view::check_target_col,
 };
 
 pub fn cursor_left(main_struct: &mut AugeliteState) {
@@ -51,26 +54,28 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
 }
 
 pub fn cursor_up(main_struct: &mut AugeliteState) {
-    move_up_one();
-    to_col(
-        main_struct
-            .buffer
-            .clone()
-            .finish()
-            .line(cursor::position().unwrap().1.into())
-            .len_chars()
-            .try_into()
-            .unwrap(),
-    );
-    move_left_one();
-    if main_struct.target_col != 0
-        && check_target_col(
-            main_struct.buffer.clone().finish(),
-            cursor::position().unwrap().1.into(),
-            main_struct.target_col,
-        )
-    {
-        to_col(main_struct.target_col as u16);
+    if main_struct.cursor_pos.1 != 0 {
+        move_up_one();
+        to_col(
+            main_struct
+                .buffer
+                .clone()
+                .finish()
+                .line(cursor::position().unwrap().1.into())
+                .len_chars()
+                .try_into()
+                .unwrap(),
+        );
+        move_left_one();
+        if main_struct.target_col != 0
+            && check_target_col(
+                main_struct.buffer.clone().finish(),
+                cursor::position().unwrap().1.into(),
+                main_struct.target_col,
+            )
+        {
+            to_col(main_struct.target_col as u16);
+        }
     }
 }
 
