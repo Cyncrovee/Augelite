@@ -31,7 +31,7 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
     if text
         .lines()
-        .nth(main_struct.cursor_pos.1 as usize + 1)
+        .nth(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize + 1)
         .is_some()
         && text
             .line(main_struct.cursor_pos.1 as usize)
@@ -88,7 +88,7 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
     if text
         .lines()
-        .nth(main_struct.cursor_pos.1 as usize + 1)
+        .nth(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize + 1)
         .is_some()
     {
         queue!(
