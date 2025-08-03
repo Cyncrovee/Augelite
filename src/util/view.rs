@@ -67,6 +67,8 @@ pub fn statusline(main_struct: &mut AugeliteState) -> std::io::Result<()> {
     print!("{}", main_struct.cursor_pos.0);
     print!(" | ");
     print!("{}", main_struct.cursor_char);
+    print!(" | ");
+    print!("{}", main_struct.scroll_offset);
     execute!(stdout(), cursor::RestorePosition)?;
     Ok(())
 }
