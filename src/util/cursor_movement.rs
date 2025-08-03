@@ -33,13 +33,16 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
         .lines()
         .nth(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize + 1)
         .is_some()
-        && text
-            .line(main_struct.cursor_pos.1 as usize)
-            .char(main_struct.cursor_pos.0 as usize)
-            == '\n'
+        && let Some(c) = text.get_line(main_struct.cursor_pos.1 as usize)
     {
-        will_move_right = false;
-        execute!(stdout(), cursor::MoveToNextLine(1)).unwrap();
+        {
+            if let Some(c2) = c.get_char(main_struct.cursor_pos.0 as usize) {
+                if c2 == '\n' {
+                    will_move_right = false;
+                    execute!(stdout(), cursor::MoveToNextLine(1)).unwrap();
+                }
+            }
+        }
     }
     if text.line(main_struct.cursor_pos.1 as usize).len_chars() == main_struct.cursor_pos.0 as usize
     {
