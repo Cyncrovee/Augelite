@@ -22,17 +22,17 @@ fn main() -> std::io::Result<()> {
     execute!(stdout(), crossterm::cursor::SetCursorStyle::SteadyBlock).unwrap();
     execute!(stdout(), crossterm::cursor::Show).unwrap();
     AugeliteState::run(&mut AugeliteState {
-        buffer: if let Some(_) = args.iter().nth(1) {
-            match read_to_string(&args[1]) {
-                Ok(f) => {
+        buffer: if let Some(arg) = args.iter().nth(1) {
+            match read_to_string(arg) {
+                Ok(file) => {
                     let mut rope = RopeBuilder::new();
-                    rope.append(f.as_str());
+                    rope.append(file.as_str());
                     rope
                 }
                 Err(_) => {
-                    if let Some(_) = args.iter().nth(1) {
+                    if let Some(arg) = args.iter().nth(1) {
                         let mut rope_builder = RopeBuilder::new();
-                        rope_builder.append(args[1].as_str());
+                        rope_builder.append(arg.as_str());
                         rope_builder
                     } else {
                         RopeBuilder::new()
@@ -47,8 +47,8 @@ fn main() -> std::io::Result<()> {
         target_col: 0,
         scroll_offset: 0,
         mode: Mode::Ovr,
-        file_path: if let Some(_) = args.iter().nth(1) {
-            Some(args[1].clone())
+        file_path: if let Some(arg) = args.iter().nth(1) {
+            Some(arg.to_string())
         } else {
             None
         },
