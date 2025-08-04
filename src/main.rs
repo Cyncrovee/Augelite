@@ -26,13 +26,13 @@ fn main() -> std::io::Result<()> {
             match read_to_string(arg) {
                 Ok(file) => {
                     let mut rope = RopeBuilder::new();
-                    rope.append(file.as_str());
+                    rope.append(&file);
                     rope
                 }
                 Err(_) => {
                     if let Some(arg) = args.iter().nth(1) {
                         let mut rope_builder = RopeBuilder::new();
-                        rope_builder.append(arg.as_str());
+                        rope_builder.append(arg);
                         rope_builder
                     } else {
                         RopeBuilder::new()
