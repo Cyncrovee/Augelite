@@ -12,7 +12,10 @@ use super::view::check_target_col;
 pub fn cursor_left(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
     if main_struct.cursor_pos.0 == 0 && main_struct.cursor_pos.1 != 0 {
-        if let Some(line) = text.lines().nth(main_struct.cursor_pos.1 as usize - 1) {
+        if let Some(line) = text
+            .lines()
+            .nth(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize - 1)
+        {
             queue!(
                 stdout(),
                 cursor::MoveUp(1),
@@ -33,7 +36,7 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
         .lines()
         .nth(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize + 1)
         .is_some()
-        && let Some(s) = text.get_line(main_struct.cursor_pos.1 as usize)
+        && let Some(s) = text.get_line(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize)
     {
         {
             if let Some(c) = s.get_char(main_struct.cursor_pos.0 as usize) {
@@ -44,7 +47,10 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
             }
         }
     }
-    if text.line(main_struct.cursor_pos.1 as usize).len_chars() == main_struct.cursor_pos.0 as usize
+    if text
+        .line(cursor::position().unwrap().1 as usize + main_struct.scroll_offset as usize)
+        .len_chars()
+        == cursor::position().unwrap().0 as usize
     {
         will_move_right = false;
     }
