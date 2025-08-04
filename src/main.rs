@@ -18,7 +18,6 @@ fn main() -> std::io::Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
     execute!(stdout(), crossterm::terminal::EnterAlternateScreen).unwrap();
-    // execute!(stdout(), crossterm::terminal::DisableLineWrap).unwrap();
     crossterm::terminal::enable_raw_mode().unwrap();
     execute!(stdout(), crossterm::cursor::Show).unwrap();
     AugeliteState::run(&mut AugeliteState {
