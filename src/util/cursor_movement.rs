@@ -117,7 +117,7 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
         .unwrap();
         if check_target_col(
             text,
-            (cursor::position().unwrap().1).into(),
+            (cursor::position().unwrap().1 + main_struct.scroll_offset).into(),
             main_struct.target_col,
         ) {
             execute!(
