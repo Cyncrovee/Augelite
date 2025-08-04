@@ -19,6 +19,7 @@ fn main() -> std::io::Result<()> {
 
     execute!(stdout(), crossterm::terminal::EnterAlternateScreen).unwrap();
     crossterm::terminal::enable_raw_mode().unwrap();
+    execute!(stdout(), crossterm::cursor::SetCursorStyle::SteadyBlock).unwrap();
     execute!(stdout(), crossterm::cursor::Show).unwrap();
     AugeliteState::run(&mut AugeliteState {
         buffer: if let Some(_) = args.iter().nth(1) {

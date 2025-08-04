@@ -82,7 +82,10 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 print_content(main_struct, true).unwrap();
             }
         }
-        KeyCode::Esc => main_struct.mode = Mode::Ovr,
+        KeyCode::Esc => {
+            main_struct.mode = Mode::Ovr;
+            execute!(stdout(), crossterm::cursor::SetCursorStyle::SteadyBlock).unwrap();
+        }
         KeyCode::PageDown => scrolling::scroll_down(main_struct),
         KeyCode::PageUp => scrolling::scroll_up(main_struct),
         _ => {}

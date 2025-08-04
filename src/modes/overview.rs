@@ -24,7 +24,10 @@ pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 main_struct.target_col = 0;
             }
             ')' => cursor_max_col(main_struct),
-            'i' => main_struct.mode = Mode::Ins,
+            'i' => {
+                main_struct.mode = Mode::Ins;
+                execute!(stdout(), crossterm::cursor::SetCursorStyle::BlinkingBar).unwrap();
+            }
             'h' => cursor_movement::cursor_left(main_struct),
             'j' => cursor_movement::cursor_down(main_struct),
             'k' => cursor_movement::cursor_up(main_struct),
@@ -33,10 +36,12 @@ pub fn overview_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 execute!(stdout(), cursor::MoveToColumn(0)).unwrap();
                 main_struct.target_col = 0;
                 main_struct.mode = Mode::Ins;
+                execute!(stdout(), crossterm::cursor::SetCursorStyle::BlinkingBar).unwrap();
             }
             'A' => {
                 cursor_max_col(main_struct);
                 main_struct.mode = Mode::Ins;
+                execute!(stdout(), crossterm::cursor::SetCursorStyle::BlinkingBar).unwrap();
             }
             'w' => cursor_movement::cursor_word(main_struct),
             'b' => cursor_movement::cursor_back(main_struct),
