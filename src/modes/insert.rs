@@ -4,6 +4,7 @@ use crossterm::{
     cursor,
     event::{KeyCode, KeyEvent, KeyModifiers},
     execute, queue,
+    terminal::{self, ClearType},
 };
 use ropey::RopeBuilder;
 
@@ -48,13 +49,33 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
         }
         KeyCode::Enter => match check_end_of_view(main_struct) {
             true => {
-                main_struct.buffer.append("\n");
+                let text = main_struct.buffer.clone().finish();
+                let mut text = text.to_string();
+                text.insert(main_struct.cursor_char, '\n');
+                main_struct.buffer = RopeBuilder::new();
+                main_struct.buffer.append(text.as_str());
                 scroll_down(main_struct);
-                execute!(stdout(), cursor::MoveToNextLine(1)).unwrap();
+                queue!(
+                    stdout(),
+                    terminal::Clear(ClearType::All),
+                    cursor::MoveToNextLine(1)
+                )
+                .unwrap();
+                print_content(main_struct, false).unwrap();
             }
             false => {
-                main_struct.buffer.append("\n");
-                execute!(stdout(), cursor::MoveToNextLine(1)).unwrap();
+                let text = main_struct.buffer.clone().finish();
+                let mut text = text.to_string();
+                text.insert(main_struct.cursor_char, '\n');
+                main_struct.buffer = RopeBuilder::new();
+                main_struct.buffer.append(text.as_str());
+                queue!(
+                    stdout(),
+                    terminal::Clear(ClearType::All),
+                    cursor::MoveToNextLine(1)
+                )
+                .unwrap();
+                print_content(main_struct, false).unwrap();
             }
         },
         KeyCode::Backspace => {
