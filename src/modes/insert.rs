@@ -81,6 +81,10 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
         KeyCode::Backspace => {
             if main_struct.cursor_pos != (0, 0) {
                 let mut text = main_struct.buffer.clone().finish();
+                let mut full_clear = false;
+                if let '\n' = text.char(main_struct.cursor_char - 1) {
+                    full_clear = true;
+                }
                 text.remove(main_struct.cursor_char - 1..main_struct.cursor_char);
                 main_struct.buffer = RopeBuilder::new();
                 main_struct.buffer.append(text.to_string().as_str());
@@ -100,6 +104,9 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                     .unwrap();
                 }
                 main_struct.target_col = main_struct.cursor_pos.0.into();
+                if full_clear == true {
+                    execute!(stdout(), terminal::Clear(ClearType::All)).unwrap();
+                }
                 print_content(main_struct, true).unwrap();
             }
         }
