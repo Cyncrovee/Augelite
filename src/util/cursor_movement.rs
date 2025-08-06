@@ -93,6 +93,27 @@ pub fn cursor_up(main_struct: &mut AugeliteState) {
     }
 }
 
+pub fn cursor_up_to_end_of_line(main_struct: &mut AugeliteState) {
+    if main_struct.cursor_pos.1 != 0 {
+        let text = main_struct.buffer.clone().finish();
+        queue!(
+            stdout(),
+            cursor::Hide,
+            cursor::MoveUp(1),
+            cursor::MoveToColumn(
+                text.line(
+                    cursor::position().unwrap().1 as usize + main_struct.scroll_offset as usize
+                )
+                .len_chars()
+                .try_into()
+                .unwrap(),
+            ),
+            // cursor::MoveLeft(1),
+            cursor::Show,
+        ).unwrap();
+    }
+}
+
 pub fn cursor_down(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
     if text

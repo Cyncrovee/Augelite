@@ -71,7 +71,7 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 main_struct.buffer.append(text.as_str());
                 queue!(
                     stdout(),
-                    terminal::Clear(ClearType::All),
+                    terminal::Clear(ClearType::FromCursorDown),
                     cursor::MoveToNextLine(1)
                 )
                 .unwrap();
@@ -81,54 +81,47 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
         KeyCode::Backspace => {
             if main_struct.cursor_pos != (0, 0) {
                 let mut text = main_struct.buffer.clone().finish();
-                let mut full_clear = false;
+                let current_col = main_struct.cursor_pos.0 as usize;
                 if let Some(c) = text.get_char(main_struct.cursor_char - 1)
-                    && c == '\n'
+                    && c != '\n'
                 {
-                    full_clear = true;
-                }
-                if let Ok(_) = text.try_remove(main_struct.cursor_char - 1..main_struct.cursor_char)
-                {
-                    main_struct.buffer = RopeBuilder::new();
-                    main_struct.buffer.append(text.to_string().as_str());
-                    execute!(stdout(), cursor::Hide).unwrap();
-                    if main_struct.cursor_pos.0 != 0 {
-                        execute!(stdout(), cursor::MoveLeft(1)).unwrap();
-                    } else {
-                        execute!(stdout(), cursor::MoveToPreviousLine(1)).unwrap();
-                        if text
-                            .line(cursor::position().unwrap().1 as usize + main_struct.scroll_offset as usize - 1)
-                            .len_chars()
-                            != 0
-                        {
-                            queue!(
-                                stdout(),
-                                cursor::MoveToColumn(
-                                    text.line(
-                                        cursor::position().unwrap().1 as usize
-                                            + main_struct.scroll_offset as usize
-                                    )
-                                    .len_chars() as u16
-                                        - 1
-                                )
-                            )
-                            .expect("Failed to move cursor previous line, and/or to column!");
+                    if let Ok(_) =
+                        text.try_remove(main_struct.cursor_char - 1..main_struct.cursor_char)
+                    {
+                        main_struct.buffer = RopeBuilder::new();
+                        main_struct.buffer.append(text.to_string().as_str());
+                        if current_col != 0 {
+                            cursor_movement::cursor_left(main_struct);
+                        } else {
+                            cursor_movement::cursor_up_to_end_of_line(main_struct);
                         }
                     }
-                    main_struct.target_col = main_struct.cursor_pos.0.into();
-                    if full_clear == true {
-                        execute!(stdout(), terminal::Clear(ClearType::FromCursorDown)).unwrap();
-                    }
-                    if let Some(l) = text.get_line(
-                        cursor::position().unwrap().1 as usize + main_struct.scroll_offset as usize,
-                    ) && l.len_chars() == 0
-                        && l.chars().last() == Some('\n')
+                } else {
+                    if let Ok(_) =
+                        text.try_remove(main_struct.cursor_char - 1..main_struct.cursor_char)
                     {
-                        execute!(stdout(), cursor::MoveToColumn(0)).unwrap();
+                        main_struct.buffer = RopeBuilder::new();
+                        main_struct.buffer.append(text.to_string().as_str());
+                        let line_len = main_struct
+                            .buffer
+                            .clone()
+                            .finish()
+                            .line(
+                                cursor::position().unwrap().1 as usize
+                                    + main_struct.scroll_offset as usize
+                                    - 1,
+                            )
+                            .len_chars();
+                        queue!(
+                            stdout(),
+                            cursor::MoveUp(1),
+                            cursor::MoveToColumn(line_len.try_into().unwrap()),
+                        )
+                        .unwrap();
                     }
-                    execute!(stdout(), cursor::Show).unwrap();
-                    print_content(main_struct, true).unwrap();
                 }
+                execute!(stdout(), terminal::Clear(ClearType::FromCursorDown)).unwrap();
+                print_content(main_struct, true).unwrap();
             }
         }
         KeyCode::Esc => {
