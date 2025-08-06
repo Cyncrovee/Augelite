@@ -95,25 +95,34 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                     if main_struct.cursor_pos.0 != 0 {
                         execute!(stdout(), cursor::MoveLeft(1)).unwrap();
                     } else {
-                        queue!(
-                            stdout(),
-                            cursor::MoveToPreviousLine(1),
-                            cursor::MoveToColumn(
-                                text.line(cursor::position().unwrap().1.into())
-                                    .len_chars()
-                                    .try_into()
-                                    .unwrap()
+                        execute!(stdout(), cursor::MoveToPreviousLine(1)).unwrap();
+                        if text
+                            .line(cursor::position().unwrap().1 as usize + main_struct.scroll_offset as usize - 1)
+                            .len_chars()
+                            != 0
+                        {
+                            queue!(
+                                stdout(),
+                                cursor::MoveToColumn(
+                                    text.line(
+                                        cursor::position().unwrap().1 as usize
+                                            + main_struct.scroll_offset as usize
+                                    )
+                                    .len_chars() as u16
+                                        - 1
+                                )
                             )
-                        )
-                        .expect("Failed to move cursor previous line, and/or to column!");
+                            .expect("Failed to move cursor previous line, and/or to column!");
+                        }
                     }
                     main_struct.target_col = main_struct.cursor_pos.0.into();
                     if full_clear == true {
-                        execute!(stdout(), terminal::Clear(ClearType::All),).unwrap();
+                        execute!(stdout(), terminal::Clear(ClearType::FromCursorDown)).unwrap();
                     }
                     if let Some(l) = text.get_line(
                         cursor::position().unwrap().1 as usize + main_struct.scroll_offset as usize,
                     ) && l.len_chars() == 0
+                        && l.chars().last() == Some('\n')
                     {
                         execute!(stdout(), cursor::MoveToColumn(0)).unwrap();
                     }
