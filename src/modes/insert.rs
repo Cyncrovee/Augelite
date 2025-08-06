@@ -82,32 +82,42 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
             if main_struct.cursor_pos != (0, 0) {
                 let mut text = main_struct.buffer.clone().finish();
                 let mut full_clear = false;
-                if let '\n' = text.char(main_struct.cursor_char - 1) {
+                if let Some(c) = text.get_char(main_struct.cursor_char - 1)
+                    && c == '\n'
+                {
                     full_clear = true;
                 }
-                text.remove(main_struct.cursor_char - 1..main_struct.cursor_char);
-                main_struct.buffer = RopeBuilder::new();
-                main_struct.buffer.append(text.to_string().as_str());
-                if main_struct.cursor_pos.0 != 0 {
-                    execute!(stdout(), cursor::MoveLeft(1)).unwrap();
-                } else {
-                    queue!(
-                        stdout(),
-                        cursor::MoveToPreviousLine(1),
-                        cursor::MoveToColumn(
-                            text.line(cursor::position().unwrap().1.into())
-                                .len_chars()
-                                .try_into()
-                                .unwrap()
+                if let Ok(_) = text.try_remove(main_struct.cursor_char - 1..main_struct.cursor_char) {
+                    main_struct.buffer = RopeBuilder::new();
+                    main_struct.buffer.append(text.to_string().as_str());
+                    execute!(stdout(), cursor::Hide).unwrap();
+                    if main_struct.cursor_pos.0 != 0 {
+                        execute!(stdout(), cursor::MoveLeft(1)).unwrap();
+                    } else {
+                        queue!(
+                            stdout(),
+                            cursor::MoveToPreviousLine(1),
+                            cursor::MoveToColumn(
+                                text.line(cursor::position().unwrap().1.into())
+                                    .len_chars()
+                                    .try_into()
+                                    .unwrap()
+                            )
                         )
-                    )
-                    .unwrap();
+                        .unwrap();
+                    }
+                    main_struct.target_col = main_struct.cursor_pos.0.into();
+                    if full_clear == true {
+                        queue!(
+                            stdout(),
+                            terminal::Clear(ClearType::All),
+                            cursor::MoveLeft(1)
+                        )
+                        .unwrap();
+                    }
+                    execute!(stdout(), cursor::Show).unwrap();
+                    print_content(main_struct, true).unwrap();
                 }
-                main_struct.target_col = main_struct.cursor_pos.0.into();
-                if full_clear == true {
-                    execute!(stdout(), terminal::Clear(ClearType::All)).unwrap();
-                }
-                print_content(main_struct, true).unwrap();
             }
         }
         KeyCode::Esc => {
