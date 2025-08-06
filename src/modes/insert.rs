@@ -87,7 +87,8 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                 {
                     full_clear = true;
                 }
-                if let Ok(_) = text.try_remove(main_struct.cursor_char - 1..main_struct.cursor_char) {
+                if let Ok(_) = text.try_remove(main_struct.cursor_char - 1..main_struct.cursor_char)
+                {
                     main_struct.buffer = RopeBuilder::new();
                     main_struct.buffer.append(text.to_string().as_str());
                     execute!(stdout(), cursor::Hide).unwrap();
@@ -104,16 +105,17 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                                     .unwrap()
                             )
                         )
-                        .unwrap();
+                        .expect("Failed to move cursor previous line, and/or to column!");
                     }
                     main_struct.target_col = main_struct.cursor_pos.0.into();
                     if full_clear == true {
-                        queue!(
-                            stdout(),
-                            terminal::Clear(ClearType::All),
-                            cursor::MoveLeft(1)
-                        )
-                        .unwrap();
+                        execute!(stdout(), terminal::Clear(ClearType::All),).unwrap();
+                    }
+                    if let Some(l) = text.get_line(
+                        cursor::position().unwrap().1 as usize + main_struct.scroll_offset as usize,
+                    ) && l.len_chars() == 0
+                    {
+                        execute!(stdout(), cursor::MoveToColumn(0)).unwrap();
                     }
                     execute!(stdout(), cursor::Show).unwrap();
                     print_content(main_struct, true).unwrap();
