@@ -13,9 +13,9 @@ A terminal text editor written in Rust.
 
 # QnA
 ## Is it ready for daily use?
-- No. Augelite is very unstable at this point and I would NOT recommend using it as a primary text editor.
+No. Augelite is very unstable at this point and I would NOT recommend using it as a primary text editor.
 ## Can I Contribute?
-- Yes! Feel free to make an issue or pull request, as long as it is not AI generated, and is your own work or properly licensed work that is compatible with the project. I'd also prefer that you use the [codeberg repository](https://codeberg.org/Cyncrovee/Augelite) if possible.
+Yes! Feel free to make an issue or pull request, as long as it is not AI generated, and is your own work or properly licensed work that is compatible with the project. I'd also prefer that you use the [codeberg repository](https://codeberg.org/Cyncrovee/Augelite) if possible.
 
 # License
 Augelite Copyright (C) 2025 Ella Hart (AKA Cyncrovee)
