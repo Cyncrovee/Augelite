@@ -6,7 +6,7 @@ A terminal text editor written in Rust.
 # Features
 ## Current
 - Basic modal editing (Overview mode and Insert mode)
-- Word forward/backward keymaps (w/W, b/B)
+- Word forward/backward keymaps (w/b)
 - File saving/loading support
 ## TODO
 - Scrolling support
