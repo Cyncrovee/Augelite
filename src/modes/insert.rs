@@ -97,6 +97,12 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                         }
                     }
                 } else {
+                    let back_len = text
+                        .line(
+                            cursor::position().unwrap().1 as usize
+                                + main_struct.scroll_offset as usize,
+                        )
+                        .len_chars();
                     if let Ok(_) =
                         text.try_remove(main_struct.cursor_char - 1..main_struct.cursor_char)
                     {
@@ -116,6 +122,7 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                             stdout(),
                             cursor::MoveUp(1),
                             cursor::MoveToColumn(line_len.try_into().unwrap()),
+                            cursor::MoveLeft(back_len as u16),
                         )
                         .unwrap();
                     }
