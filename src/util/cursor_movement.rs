@@ -11,7 +11,7 @@ use super::view::check_target_col;
 
 pub fn cursor_left(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
-    if main_struct.cursor_pos.0 == 0 && main_struct.cursor_pos.1 != 0 {
+    if main_struct.cursor_pos == (0, !0) {
         if let Some(line) = text
             .lines()
             .nth(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize - 1)
@@ -36,7 +36,8 @@ pub fn cursor_right(main_struct: &mut AugeliteState) {
         .lines()
         .nth(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize + 1)
         .is_some()
-        && let Some(s) = text.get_line(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize)
+        && let Some(s) =
+            text.get_line(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize)
     {
         {
             if let Some(c) = s.get_char(main_struct.cursor_pos.0 as usize) {
@@ -110,7 +111,8 @@ pub fn cursor_up_to_end_of_line(main_struct: &mut AugeliteState) {
             ),
             // cursor::MoveLeft(1),
             cursor::Show,
-        ).unwrap();
+        )
+        .unwrap();
     }
 }
 
@@ -154,8 +156,7 @@ pub fn cursor_down(main_struct: &mut AugeliteState) {
 pub fn cursor_word(main_struct: &mut AugeliteState) {
     let text = main_struct.buffer.clone().finish();
     let line = text.line(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize);
-    let start = main_struct.cursor_pos.0 as usize;
-    let line_slice = line.slice(start..line.len_chars());
+    let line_slice = line.slice(main_struct.cursor_pos.0 as usize..line.len_chars());
     let mut col: u16 = 0;
     let mut will_move_to_col = true;
     for char in line_slice.chars() {
@@ -194,7 +195,8 @@ pub fn cursor_back(main_struct: &mut AugeliteState) {
         cursor_left(main_struct);
     } else {
         let text = main_struct.buffer.clone().finish();
-        let line = text.line(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize);
+        let line =
+            text.line(main_struct.cursor_pos.1 as usize + main_struct.scroll_offset as usize);
         let end = main_struct.cursor_pos.0 as usize;
         let line = line.slice(0..end);
         let mut col: u16 = 0;
