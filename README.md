@@ -8,6 +8,7 @@ A terminal text editor written in Rust.
 - File saving/loading support
 ## TODO
 - Scrolling support
+- Line Numbers
 - Command mode
 
 # QnA
