@@ -3,7 +3,7 @@ use std::{fs::read_to_string, io::stdout};
 use crossterm::{
     cursor,
     event::{self, Event, KeyEventKind},
-    execute,
+    execute, queue,
 };
 use ropey::RopeBuilder;
 use util::{
@@ -19,8 +19,12 @@ fn main() -> std::io::Result<()> {
 
     execute!(stdout(), crossterm::terminal::EnterAlternateScreen).unwrap();
     crossterm::terminal::enable_raw_mode().unwrap();
-    execute!(stdout(), crossterm::cursor::SetCursorStyle::SteadyBlock).unwrap();
-    execute!(stdout(), crossterm::cursor::Show).unwrap();
+    queue!(
+        stdout(),
+        crossterm::cursor::SetCursorStyle::SteadyBlock,
+        crossterm::cursor::Show
+    )
+    .unwrap();
     AugeliteState::run(&mut AugeliteState {
         buffer: if let Some(arg) = args.iter().nth(1) {
             match read_to_string(arg) {
