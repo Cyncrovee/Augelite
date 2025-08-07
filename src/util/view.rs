@@ -84,3 +84,11 @@ pub fn check_end_of_view(main_struct: &mut AugeliteState) -> bool {
         false
     }
 }
+
+pub fn check_start_of_view(main_struct: &mut AugeliteState) -> bool {
+    if main_struct.scroll_offset != 0 && cursor::position().unwrap().1 <= 3 {
+        true
+    } else {
+        false
+    }
+}

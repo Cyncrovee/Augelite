@@ -9,13 +9,12 @@ use crossterm::{
 use ropey::RopeBuilder;
 
 use crate::{
-    AugeliteState,
     util::{
         cursor_movement,
         model::Mode,
         scrolling::{self, scroll_down},
-        view::{check_end_of_view, print_content},
-    },
+        view::{check_end_of_view, check_start_of_view, print_content},
+    }, AugeliteState
 };
 
 pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
@@ -126,6 +125,9 @@ pub fn insert_input(key: KeyEvent, main_struct: &mut AugeliteState) -> bool {
                         )
                         .unwrap();
                     }
+                }
+                if check_start_of_view(main_struct) {
+                    scrolling::scroll_up(main_struct);
                 }
                 execute!(stdout(), terminal::Clear(ClearType::FromCursorDown)).unwrap();
                 print_content(main_struct, true).unwrap();
